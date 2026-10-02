@@ -399,11 +399,52 @@ function renderProfile(playerName) {
   `;
 }
 
-function setPage(page) {
+// ---------- URL routing ----------
+// Clean paths like /RiftTiers-Website/Testing for each tab. GitHub Pages
+// can't route these server-side (static hosting), so 404.html + the inline
+// script in index.html's <head> do the redirect dance that makes direct
+// hits and refreshes land back on the right tab. See those two files.
+const SITE_BASE_PATH = "/RiftTiers-Website/";
+const PAGE_PATH_NAMES = {
+  home: "",
+  leaderboard: "Leaderboard",
+  testers: "Testers",
+  testing: "Testing",
+  support: "Support",
+  verify: "Verify",
+};
+
+function pageFromLocation() {
+  let path = window.location.pathname;
+  if (path.startsWith(SITE_BASE_PATH)) path = path.slice(SITE_BASE_PATH.length);
+  path = path.replace(/^\/+|\/+$/g, "");
+  if (!path) return "home";
+  const seg = path.split("/")[0].toLowerCase();
+  const match = Object.keys(PAGE_PATH_NAMES).find(
+    (p) => PAGE_PATH_NAMES[p].toLowerCase() === seg
+  );
+  return match || "home";
+}
+
+function updateUrlForPage(page) {
+  const seg = PAGE_PATH_NAMES[page] !== undefined ? PAGE_PATH_NAMES[page] : "";
+  const url = SITE_BASE_PATH + seg;
+  if (window.location.pathname !== url) {
+    history.pushState({ page }, "", url);
+  }
+}
+
+window.addEventListener("popstate", () => {
+  setPage(pageFromLocation(), { skipUrlUpdate: true });
+});
+
+function setPage(page, opts) {
+  opts = opts || {};
   currentPage = page;
   document.querySelectorAll(".page-tab").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.page === page);
   });
+  if (!opts.skipUrlUpdate) updateUrlForPage(page);
 
   const filterNav = document.getElementById("filter-nav");
   filterNav.style.display = page === "leaderboard" ? "flex" : "none";
@@ -662,7 +703,7 @@ async function init() {
   await Promise.all([loadPlayers(), loadLiveTests(), loadResultsLog()]);
   buildNav();
   setupSidePanel();
-  setPage(!isVerified() && currentSession ? "verify" : "home");
+  setPage(!isVerified() && currentSession ? "verify" : pageFromLocation(), { skipUrlUpdate: true });
 }
 
 init();

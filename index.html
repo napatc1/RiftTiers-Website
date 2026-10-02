@@ -8,6 +8,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
+  <script>
+    // Single Page Apps for GitHub Pages: unpack the path 404.html redirected
+    // here (see 404.html), restoring the real URL (e.g. /Testing) via
+    // history.replaceState before anything else runs.
+    (function (l) {
+      if (l.search[1] === "/") {
+        var decoded = l.search.slice(1).split("&").map(function (s) {
+          return s.replace(/~and~/g, "&");
+        }).join("?");
+        window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);
+      }
+    })(window.location);
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
