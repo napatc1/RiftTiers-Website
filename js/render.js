@@ -406,7 +406,7 @@ function renderProfile(playerName) {
 // hits and refreshes land back on the right tab. See those two files.
 const SITE_BASE_PATH = "/RiftTiers-Website/";
 const PAGE_PATH_NAMES = {
-  home: "",
+  home: "Home",
   leaderboard: "Leaderboard",
   testers: "Testers",
   testing: "Testing",
