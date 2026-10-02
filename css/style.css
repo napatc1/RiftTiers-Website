@@ -1506,3 +1506,171 @@ td:last-child {
     flex-wrap: wrap;
   }
 }
+
+/* ---------- support tab ---------- */
+
+.support-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.support-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.support-heading {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.support-ticket-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  color: var(--text);
+  font-family: "Lexend", sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.support-ticket-row:hover {
+  border-color: var(--accent);
+}
+
+.support-ticket-status {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.support-ticket-status-open {
+  background: rgba(63, 160, 245, 0.15);
+  color: var(--accent);
+}
+
+.support-ticket-status-closed {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-dim);
+}
+
+.support-ticket-subject {
+  flex-grow: 1;
+  font-weight: 600;
+}
+
+.support-ticket-category,
+.support-ticket-player {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.support-form,
+.support-reply-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 520px;
+}
+
+.support-reply-form {
+  flex-direction: row;
+  max-width: none;
+  margin-top: 14px;
+}
+
+.support-form-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+.support-form-input,
+.support-form-select,
+.support-form-textarea {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: "Lexend", sans-serif;
+  font-size: 0.9rem;
+}
+
+.support-reply-form .support-form-input {
+  flex-grow: 1;
+}
+
+.support-form-textarea {
+  resize: vertical;
+}
+
+.support-thread-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.support-thread-header .auth-btn {
+  margin-left: auto;
+}
+
+.support-thread-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.support-message {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.support-message-discord {
+  border-left: 3px solid var(--ice);
+}
+
+.support-message-website {
+  border-left: 3px solid var(--accent);
+}
+
+.support-message-author {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.support-message-source {
+  font-weight: 400;
+  color: var(--ice);
+}
+
+.support-message-content {
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+}

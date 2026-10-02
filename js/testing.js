@@ -339,4 +339,5 @@ function subscribeQueueRealtime() {
 // Called by supabase-client.js whenever login state changes.
 function onAuthChanged() {
   if (currentPage === "testing") renderTestingTab();
+  if (currentPage === "support") renderSupportTab();
 }

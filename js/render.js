@@ -415,6 +415,8 @@ function setPage(page) {
     renderTesters();
   } else if (page === "testing") {
     renderTestingTab();
+  } else if (page === "support") {
+    renderSupportTab();
   } else {
     setView(currentView.type === "player" ? previousListView : currentView);
   }
