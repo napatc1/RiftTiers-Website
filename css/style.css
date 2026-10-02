@@ -1299,6 +1299,7 @@ td:last-child {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  padding: 24px;
 }
 
 .testing-profile-bar {
@@ -1531,6 +1532,7 @@ td:last-child {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding: 24px;
 }
 
 .support-header-row {
