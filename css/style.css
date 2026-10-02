@@ -1271,15 +1271,26 @@ td:last-child {
 }
 
 .auth-username-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: var(--accent-dim);
   border: 1px solid var(--line);
   color: var(--text);
   border-radius: 8px;
-  padding: 8px 14px;
+  padding: 6px 14px 6px 8px;
   font-family: "Lexend", sans-serif;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
+}
+
+.auth-username-head {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: block;
+  flex-shrink: 0;
 }
 
 /* ---------- testing tab ---------- */
@@ -1337,15 +1348,18 @@ td:last-child {
 .testing-gm-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  box-sizing: border-box;
+  min-height: 34px;
   background: var(--panel);
   border: 1px solid var(--line);
   color: var(--text-dim);
   border-radius: 20px;
-  padding: 7px 14px;
+  padding: 7px 16px 7px 12px;
   font-family: "Lexend", sans-serif;
   font-size: 0.8rem;
   font-weight: 500;
+  line-height: 1;
   cursor: pointer;
 }
 
@@ -1358,6 +1372,9 @@ td:last-child {
 .testing-gm-icon {
   width: 16px;
   height: 16px;
+  display: block;
+  flex-shrink: 0;
+  object-fit: contain;
 }
 
 .queue-panel {

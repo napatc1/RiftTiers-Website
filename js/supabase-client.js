@@ -88,7 +88,10 @@ function renderAuthUI() {
 
   if (currentSession && currentProfile) {
     el.innerHTML = `
-      <button type="button" id="edit-profile-btn" class="auth-username-btn">${escapeHtml(currentProfile.username || "Player")}</button>
+      <button type="button" id="edit-profile-btn" class="auth-username-btn">
+        <img src="${headUrl(currentProfile.username || "Player", 20)}" alt="" class="auth-username-head" />
+        ${escapeHtml(currentProfile.username || "Player")}
+      </button>
       <button type="button" id="logout-btn" class="auth-btn">Logout</button>
     `;
     document.getElementById("edit-profile-btn").onclick = editMyProfile;
