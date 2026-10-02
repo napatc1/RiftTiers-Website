@@ -1351,11 +1351,12 @@ td:last-child {
   gap: 8px;
   box-sizing: border-box;
   min-height: 34px;
+  overflow: hidden;
   background: var(--panel);
   border: 1px solid var(--line);
   color: var(--text-dim);
-  border-radius: 20px;
-  padding: 7px 16px 7px 12px;
+  border-radius: 10px;
+  padding: 7px 16px;
   font-family: "Lexend", sans-serif;
   font-size: 0.8rem;
   font-weight: 500;
