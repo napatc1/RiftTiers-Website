@@ -25,27 +25,57 @@ function headUrl(name, size) {
   return `https://mc-heads.net/avatar/${encodeURIComponent(name)}/${size}`;
 }
 
-// Firebase Realtime Database REST endpoint. Public reads only — writes
-// happen exclusively through the Discord bot's service account.
-const FIREBASE_URL = "https://cleantiers-default-rtdb.asia-southeast1.firebasedatabase.app";
+// All data now lives in Supabase (see supabase-client.js for the client
+// and supabase/schema.sql in the bot repo for the tables). Public reads are
+// allowed by Row Level Security; writes only happen through the RPC
+// functions called from testing.js, gated by who's logged in.
 
 async function loadPlayers() {
-  const res = await fetch(`${FIREBASE_URL}/players.json`);
-  const data = await res.json();
-  // Firebase stores players as an object keyed by name, not an array.
-  PLAYERS = data ? Object.values(data) : [];
+  const [{ data: players }, { data: tiers }] = await Promise.all([
+    sb.from("players").select("id, username, region"),
+    sb.from("player_tiers").select("player_id, gamemode, tier"),
+  ]);
+
+  const tiersByPlayer = new Map();
+  (tiers || []).forEach((t) => {
+    if (!tiersByPlayer.has(t.player_id)) tiersByPlayer.set(t.player_id, {});
+    tiersByPlayer.get(t.player_id)[t.gamemode] = t.tier;
+  });
+
+  PLAYERS = (players || []).map((p) => ({
+    name: p.username,
+    region: p.region || "NA",
+    tiers: tiersByPlayer.get(p.id) || {},
+  }));
 }
 
 async function loadLiveTests() {
-  const res = await fetch(`${FIREBASE_URL}/liveTests.json`);
-  const data = await res.json();
-  LIVE_TESTS = data ? Object.values(data) : [];
+  const { data } = await sb
+    .from("live_tests")
+    .select("gamemode, players!live_tests_player_id_fkey(username)");
+  LIVE_TESTS = (data || []).map((t) => ({
+    testeeName: t.players.username,
+    gamemode: t.gamemode,
+    tier: null,
+  }));
 }
 
 async function loadResultsLog() {
-  const res = await fetch(`${FIREBASE_URL}/resultsLog.json`);
-  const data = await res.json();
-  RESULTS_LOG = data ? Object.values(data) : [];
+  const { data } = await sb
+    .from("test_log")
+    .select(
+      "gamemode, tier, created_at, players!test_log_player_id_fkey(username), tester:players!test_log_tester_id_fkey(username)"
+    )
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  RESULTS_LOG = (data || []).map((r) => ({
+    testeeName: r.players ? r.players.username : "Unknown",
+    gamemode: r.gamemode,
+    tier: r.tier,
+    testerNames: r.tester ? [r.tester.username] : [],
+    timestamp: new Date(r.created_at).getTime(),
+  }));
 }
 
 // Builds a checkbox-style dropdown menu. onToggle(value, nowChecked) fires
@@ -383,6 +413,8 @@ function setPage(page) {
     renderHome();
   } else if (page === "testers") {
     renderTesters();
+  } else if (page === "testing") {
+    renderTestingTab();
   } else {
     setView(currentView.type === "player" ? previousListView : currentView);
   }
@@ -621,6 +653,8 @@ function setupSidePanel() {
 }
 
 async function init() {
+  await refreshProfile();
+  renderAuthUI();
   await Promise.all([loadPlayers(), loadLiveTests(), loadResultsLog()]);
   buildNav();
   setupSidePanel();
