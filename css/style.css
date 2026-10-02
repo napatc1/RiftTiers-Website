@@ -18,7 +18,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: "Space Grotesk", "Segoe UI", Arial, sans-serif;
+  font-family: "Lexend", "Segoe UI", Arial, sans-serif;
   background-image:
     radial-gradient(ellipse 900px 500px at 15% -10%, rgba(63, 160, 245, 0.08), transparent),
     radial-gradient(ellipse 700px 400px at 100% 0%, rgba(95, 208, 255, 0.05), transparent);
@@ -50,10 +50,21 @@ header {
 
 header h1 {
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 1.4rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: #ffffff;
+}
+
+.site-logo {
+  flex-shrink: 0;
+}
+
+.title-accent {
+  color: var(--accent);
 }
 
 .discord-btn {
@@ -95,7 +106,7 @@ nav {
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 7px 16px;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Lexend", sans-serif;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -127,7 +138,7 @@ nav {
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 7px 14px;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Lexend", sans-serif;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -184,7 +195,7 @@ nav {
   background: none;
   border: none;
   color: var(--text-dim);
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Lexend", sans-serif;
   font-size: 0.85rem;
   font-weight: 500;
   padding: 8px 12px;
@@ -242,7 +253,7 @@ nav {
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 7px 14px;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Lexend", sans-serif;
   font-size: 0.85rem;
   min-width: 170px;
 }
@@ -284,7 +295,7 @@ main {
   background: none;
   border: none;
   color: var(--accent);
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Lexend", sans-serif;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
@@ -449,7 +460,7 @@ td:last-child {
   background: none;
   border: none;
   color: var(--text);
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Lexend", sans-serif;
   font-size: 0.92rem;
   font-weight: 500;
   cursor: pointer;
@@ -709,7 +720,7 @@ td:last-child {
   border: none;
   border-bottom: 2px solid transparent;
   padding: 6px 4px;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Lexend", sans-serif;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -750,7 +761,7 @@ td:last-child {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Lexend", sans-serif;
   font-weight: 600;
   color: var(--text);
 }
@@ -815,7 +826,7 @@ td:last-child {
   border: none;
   border-radius: 0 8px 8px 0;
   padding: 14px 8px;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Lexend", sans-serif;
   font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -889,7 +900,7 @@ td:last-child {
 }
 
 .live-now-title {
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Lexend", sans-serif;
   font-size: 0.95rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -972,7 +983,7 @@ td:last-child {
 }
 
 .live-row-name {
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Lexend", sans-serif;
   font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1187,7 +1198,7 @@ td:last-child {
   border: none;
   border-bottom: 1px solid var(--line);
   padding: 16px 18px;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Lexend", sans-serif;
   font-size: 0.9rem;
 }
 
