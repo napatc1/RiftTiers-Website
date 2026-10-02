@@ -52,10 +52,11 @@ async function loadPlayers() {
 async function loadLiveTests() {
   const { data } = await sb
     .from("live_tests")
-    .select("gamemode, players!live_tests_player_id_fkey(username)");
+    .select("gamemode, tester_names, players!live_tests_player_id_fkey(username)");
   LIVE_TESTS = (data || []).map((t) => ({
     testeeName: t.players.username,
     gamemode: t.gamemode,
+    testerNames: t.tester_names || [],
     tier: null,
   }));
 }
@@ -63,9 +64,7 @@ async function loadLiveTests() {
 async function loadResultsLog() {
   const { data } = await sb
     .from("test_log")
-    .select(
-      "gamemode, tier, created_at, players!test_log_player_id_fkey(username), tester:players!test_log_tester_id_fkey(username)"
-    )
+    .select("gamemode, tier, tester_names, created_at, players!test_log_player_id_fkey(username)")
     .order("created_at", { ascending: false })
     .limit(200);
 
@@ -73,7 +72,7 @@ async function loadResultsLog() {
     testeeName: r.players ? r.players.username : "Unknown",
     gamemode: r.gamemode,
     tier: r.tier,
-    testerNames: r.tester ? [r.tester.username] : [],
+    testerNames: r.tester_names || [],
     timestamp: new Date(r.created_at).getTime(),
   }));
 }
@@ -417,6 +416,8 @@ function setPage(page) {
     renderTestingTab();
   } else if (page === "support") {
     renderSupportTab();
+  } else if (page === "verify") {
+    renderVerifyTab();
   } else {
     setView(currentView.type === "player" ? previousListView : currentView);
   }
@@ -657,10 +658,11 @@ function setupSidePanel() {
 async function init() {
   await refreshProfile();
   renderAuthUI();
+  updateVerifyTabVisibility();
   await Promise.all([loadPlayers(), loadLiveTests(), loadResultsLog()]);
   buildNav();
   setupSidePanel();
-  setPage("home");
+  setPage(!isVerified() && currentSession ? "verify" : "home");
 }
 
 init();

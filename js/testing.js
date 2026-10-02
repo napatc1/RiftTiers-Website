@@ -338,6 +338,14 @@ function subscribeQueueRealtime() {
 
 // Called by supabase-client.js whenever login state changes.
 function onAuthChanged() {
+  const wasShowingVerify = document.getElementById("verify-tab-btn")?.style.display !== "none";
+  updateVerifyTabVisibility();
+  const nowShowingVerify = document.getElementById("verify-tab-btn")?.style.display !== "none";
+  // Just logged in and not verified yet — take them straight to the form.
+  if (!wasShowingVerify && nowShowingVerify) {
+    setPage("verify");
+  }
+
   if (currentPage === "testing") renderTestingTab();
   if (currentPage === "support") renderSupportTab();
 }
