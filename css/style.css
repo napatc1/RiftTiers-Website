@@ -1547,6 +1547,31 @@ td:last-child {
   font-weight: 700;
 }
 
+.support-section-heading {
+  margin: 20px 0 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.support-section-heading:first-child {
+  margin-top: 0;
+}
+
+.support-section-heading-history {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 16px;
+}
+
+.support-message-edited {
+  font-weight: 400;
+  font-style: italic;
+  color: var(--text-dim);
+  font-size: 0.75em;
+}
+
 .support-ticket-row {
   display: flex;
   align-items: center;

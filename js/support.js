@@ -49,6 +49,16 @@ async function fetchMyTickets() {
   return data || [];
 }
 
+function ticketRowHtml(t) {
+  return `
+    <button type="button" class="support-ticket-row" data-ticket-id="${t.id}">
+      <span class="support-ticket-status support-ticket-status-${t.status}">${t.status}</span>
+      <span class="support-ticket-subject">${escapeHtml(t.subject)}</span>
+      <span class="support-ticket-category">${supportCategoryLabel(t.category)}</span>
+      ${t.players ? `<span class="support-ticket-player">${escapeHtml(t.players.username)}</span>` : ""}
+    </button>`;
+}
+
 async function renderSupportList() {
   const container = document.getElementById("leaderboard");
   container.innerHTML = `
@@ -72,17 +82,18 @@ async function renderSupportList() {
     return;
   }
 
-  body.innerHTML = tickets
-    .map(
-      (t) => `
-    <button type="button" class="support-ticket-row" data-ticket-id="${t.id}">
-      <span class="support-ticket-status support-ticket-status-${t.status}">${t.status}</span>
-      <span class="support-ticket-subject">${escapeHtml(t.subject)}</span>
-      <span class="support-ticket-category">${supportCategoryLabel(t.category)}</span>
-      ${t.players ? `<span class="support-ticket-player">${escapeHtml(t.players.username)}</span>` : ""}
-    </button>`
-    )
-    .join("");
+  // Closed tickets (their Discord channel is gone by now) live under a
+  // separate "History Tickets" section below the active ones, instead of
+  // being mixed into the same list.
+  const active = tickets.filter((t) => t.status !== "closed");
+  const history = tickets.filter((t) => t.status === "closed");
+
+  body.innerHTML = `
+    <h4 class="support-section-heading">Active Tickets</h4>
+    ${active.length ? active.map(ticketRowHtml).join("") : `<p class="empty-state">No active tickets.</p>`}
+    <h4 class="support-section-heading support-section-heading-history">History Tickets</h4>
+    ${history.length ? history.map(ticketRowHtml).join("") : `<p class="empty-state">No past tickets yet.</p>`}
+  `;
 
   body.querySelectorAll(".support-ticket-row").forEach((row) => {
     row.onclick = () => {
@@ -168,7 +179,7 @@ async function loadAndRenderThreadBody(ticketId) {
     sb.from("support_tickets").select("id, category, subject, status, player_id, players(username)").eq("id", ticketId).single(),
     sb
       .from("support_messages")
-      .select("id, author_player_id, author_label, source, content, created_at, players(username)")
+      .select("id, author_player_id, author_label, source, content, created_at, edited_at, players(username)")
       .eq("ticket_id", ticketId)
       .order("created_at", { ascending: true }),
   ]);
@@ -185,7 +196,7 @@ async function loadAndRenderThreadBody(ticketId) {
       const name = m.players ? m.players.username : m.author_label || (m.source === "discord" ? "Discord" : "Unknown");
       return `
         <div class="support-message support-message-${m.source}">
-          <div class="support-message-author">${escapeHtml(name)} <span class="support-message-source">${m.source === "discord" ? "via Discord" : ""}</span></div>
+          <div class="support-message-author">${escapeHtml(name)} <span class="support-message-source">${m.source === "discord" ? "via Discord" : ""}</span>${m.edited_at ? ` <span class="support-message-edited">(edited)</span>` : ""}</div>
           <div class="support-message-content">${escapeHtml(m.content)}</div>
         </div>
       `;
