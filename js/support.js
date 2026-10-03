@@ -11,9 +11,17 @@ const SUPPORT_CATEGORIES = [
   { id: "appeal", label: "Appeal a tier" },
 ];
 
+// "hightest" tickets are only ever opened from Discord's #request-high-test
+// channel, so it's deliberately left out of SUPPORT_CATEGORIES (no need for
+// it in the website's "new ticket" dropdown) but still needs a real label
+// here since those tickets are mirrored to and readable on the website too.
+const SUPPORT_CATEGORY_LABELS_EXTRA = {
+  hightest: "High Tier Test Request",
+};
+
 function supportCategoryLabel(id) {
   const c = SUPPORT_CATEGORIES.find((c) => c.id === id);
-  return c ? c.label : id;
+  return c ? c.label : SUPPORT_CATEGORY_LABELS_EXTRA[id] || id;
 }
 
 function renderSupportTab() {
