@@ -19,12 +19,13 @@ async function fetchQueueData(gamemode) {
       .from("queue_testers")
       .select("player_id, players!queue_testers_player_id_fkey(username)")
       .eq("gamemode", gamemode),
-    sb.from("queue_closed").select("closed").eq("gamemode", gamemode).maybeSingle(),
+    sb.from("queue_closed").select("closed, locked").eq("gamemode", gamemode).maybeSingle(),
   ]);
   return {
     entries: entries || [],
     testers: testers || [],
     closed: closedRow ? closedRow.closed : false,
+    locked: closedRow ? closedRow.locked : false,
   };
 }
 
@@ -105,11 +106,17 @@ async function renderQueuesSubtab() {
 async function loadAndRenderQueuePanel() {
   const panel = document.getElementById("queue-panel");
   if (!panel) return;
-  const { entries, testers, closed } = await fetchQueueData(testingGamemode);
+  const { entries, testers, closed, locked } = await fetchQueueData(testingGamemode);
 
   const isLoggedIn = !!currentProfile;
   const isTester = isLoggedIn && currentProfile.isTester;
   const myPlayerId = isLoggedIn ? currentProfile.playerId : null;
+  const myEntry = isLoggedIn ? entries.find((e) => e.player_id === myPlayerId) : null;
+  // Testers can join/queue as a player too (same as Discord), and — like
+  // Discord — they can join even while the queue is closed or locked, so
+  // the restriction below only applies to non-testers.
+  const joinBlocked = !isTester && (closed || locked) && !myEntry;
+  const joinLabel = myEntry ? "Leave Queue" : closed ? "Queue Closed" : locked ? "Queue Locked" : "Join Queue";
 
   const queueRows =
     entries.length === 0
@@ -131,6 +138,15 @@ async function loadAndRenderQueuePanel() {
       ? `<p class="empty-state">No testers active.</p>`
       : testers.map((t) => `<span class="queue-tester-chip">${escapeHtml(t.players.username)}</span>`).join("");
 
+  // Shared between testers and regular players — testers get this
+  // alongside their own controls below, since a tester can queue up as a
+  // player too (same as the Discord side).
+  const joinLeaveButtonHtml = `
+    <button type="button" id="join-leave-btn" class="auth-btn auth-btn-primary" ${joinBlocked ? "disabled" : ""}>
+      ${joinLabel}
+    </button>
+  `;
+
   let actionsHtml = "";
   if (!isLoggedIn) {
     actionsHtml = `<p class="empty-state">Login with Discord to join the queue.</p>`;
@@ -141,15 +157,13 @@ async function loadAndRenderQueuePanel() {
         <button type="button" id="toggle-testing-btn" class="auth-btn">${amTesting ? "Stop Testing" : "Start Testing"}</button>
         <button type="button" id="toggle-closed-btn" class="auth-btn">${closed ? "Open Queue" : "Close Queue"}</button>
         <button type="button" id="claim-next-btn" class="auth-btn auth-btn-primary" ${entries.length === 0 ? "disabled" : ""}>Claim Next</button>
+        ${joinLeaveButtonHtml}
       </div>
     `;
   } else {
-    const myEntry = entries.find((e) => e.player_id === myPlayerId);
     actionsHtml = `
       <div class="queue-actions">
-        <button type="button" id="join-leave-btn" class="auth-btn auth-btn-primary" ${closed && !myEntry ? "disabled" : ""}>
-          ${myEntry ? "Leave Queue" : closed ? "Queue Closed" : "Join Queue"}
-        </button>
+        ${joinLeaveButtonHtml}
       </div>
     `;
   }
@@ -172,7 +186,6 @@ async function loadAndRenderQueuePanel() {
   const joinLeaveBtn = document.getElementById("join-leave-btn");
   if (joinLeaveBtn) {
     joinLeaveBtn.onclick = async () => {
-      const myEntry = entries.find((e) => e.player_id === myPlayerId);
       joinLeaveBtn.disabled = true;
       try {
         if (myEntry) {
