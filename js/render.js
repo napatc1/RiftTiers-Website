@@ -459,6 +459,8 @@ function setPage(page, opts) {
     renderSupportTab();
   } else if (page === "verify") {
     renderVerifyTab();
+  } else if (page === "settings") {
+    renderSettingsPage();
   } else {
     setView(currentView.type === "player" ? previousListView : currentView);
   }
@@ -700,6 +702,7 @@ async function init() {
   await refreshProfile();
   renderAuthUI();
   updateVerifyTabVisibility();
+  updateSettingsTabVisibility();
   await Promise.all([loadPlayers(), loadLiveTests(), loadResultsLog()]);
   buildNav();
   setupSidePanel();

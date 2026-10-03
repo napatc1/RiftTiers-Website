@@ -62,24 +62,9 @@ async function logoutOfDiscord() {
   if (typeof onAuthChanged === "function") onAuthChanged();
 }
 
-async function editMyProfile() {
-  const username = prompt("Your Minecraft username:", currentProfile.username || "");
-  if (username === null) return;
-  const region = prompt("Your region (NA, EU, AS, ME, AU):", currentProfile.region || "NA");
-  if (region === null) return;
-  try {
-    const { error } = await sb.rpc("set_my_profile", {
-      p_username: username.trim() || null,
-      p_platform: null,
-      p_region: region.trim().toUpperCase() || null,
-    });
-    if (error) throw error;
-  } catch (err) {
-    alert(err.message || "Couldn't update your profile.");
-  }
-  await refreshProfile();
-  renderAuthUI();
-  if (typeof onAuthChanged === "function") onAuthChanged();
+function editMyProfile() {
+  // Navigate to the settings page instead of using browser prompts.
+  if (typeof setPage === "function") setPage("settings");
 }
 
 function renderAuthUI() {

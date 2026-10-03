@@ -443,6 +443,7 @@ function subscribeQueueRealtime() {
 function onAuthChanged() {
   const wasShowingVerify = document.getElementById("verify-tab-btn")?.style.display !== "none";
   updateVerifyTabVisibility();
+  updateSettingsTabVisibility();
   const nowShowingVerify = document.getElementById("verify-tab-btn")?.style.display !== "none";
   // Just logged in and not verified yet — take them straight to the form.
   if (!wasShowingVerify && nowShowingVerify) {
