@@ -1592,6 +1592,20 @@ td:last-child {
   color: #f59e0b;
 }
 
+.high-test-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(90deg, #d97706, #b45309);
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  vertical-align: middle;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
 /* ---------- support tab ---------- */
 
 .support-page {

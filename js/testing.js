@@ -335,7 +335,7 @@ async function renderTestsSubtab() {
         <div class="test-ticket-row">
           <img src="${headUrl(t.players.username, 32)}" class="result-row-head" alt="" />
           <div class="result-row-info">
-            <div class="result-row-name">${escapeHtml(t.players.username)}</div>
+            <div class="result-row-name">${escapeHtml(t.players.username)}${t.gamemode.includes("(high)") ? ` <span class="high-test-badge">High Test</span>` : ""}</div>
             <div class="result-row-gamemode">${escapeHtml(gmLabel(t.gamemode))} &bull; ${escapeHtml(t.region || "")}</div>
           </div>
           <span class="test-ticket-status">In Progress</span>
