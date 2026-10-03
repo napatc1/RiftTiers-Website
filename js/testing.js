@@ -1,5 +1,5 @@
-// The "Testing" page: Queues + Results subtabs, backed live by Supabase.
-let testingSubtab = "queues"; // "queues" | "results"
+// The "Testing" page: Queues + Tests + Results subtabs, backed live by Supabase.
+let testingSubtab = "queues"; // "queues" | "tests" | "results"
 let testingGamemode = "vanilla";
 let testingRegion = null; // the region tab currently being viewed
 let testingChannel = null;
@@ -48,7 +48,7 @@ async function fetchLiveTestsForTester() {
   if (!currentProfile) return [];
   let query = sb
     .from("live_tests")
-    .select("id, gamemode, started_at, players!live_tests_player_id_fkey(username)");
+    .select("id, gamemode, region, started_at, discord_ticket_channel_id, players!live_tests_player_id_fkey(username)");
   if (!currentProfile.isManager) {
     query = query.eq("tester_id", currentProfile.playerId);
   }
@@ -71,6 +71,7 @@ function renderTestingTab() {
       ${profileBarHtml}
       <div class="testing-subtabs">
         <button type="button" class="testing-subtab-btn ${testingSubtab === "queues" ? "active" : ""}" data-subtab="queues">Queues</button>
+        <button type="button" class="testing-subtab-btn ${testingSubtab === "tests" ? "active" : ""}" data-subtab="tests">Tests</button>
         <button type="button" class="testing-subtab-btn ${testingSubtab === "results" ? "active" : ""}" data-subtab="results">Results</button>
       </div>
       <div id="testing-subtab-content"></div>
@@ -89,6 +90,8 @@ function renderTestingTab() {
 
   if (testingSubtab === "queues") {
     renderQueuesSubtab();
+  } else if (testingSubtab === "tests") {
+    renderTestsSubtab();
   } else {
     renderResultsSubtab();
   }
@@ -199,7 +202,7 @@ async function loadAndRenderQueuePanel() {
       <div class="queue-actions">
         <button type="button" id="toggle-testing-btn" class="auth-btn">${amTesting ? "Stop Testing" : "Start Testing"}</button>
         <button type="button" id="toggle-closed-btn" class="auth-btn">${closed ? "Open Queue" : "Close Queue"}</button>
-        <button type="button" id="claim-next-btn" class="auth-btn auth-btn-primary" ${entries.length === 0 ? "disabled" : ""}>Claim Next</button>
+        <button type="button" id="claim-next-btn" class="auth-btn auth-btn-primary" ${entries.length === 0 ? "disabled" : ""}>Next / Pull</button>
         ${joinLeaveButtonHtml}
       </div>
     `;
@@ -305,6 +308,46 @@ async function loadAndRenderQueuePanel() {
   }
 }
 
+async function renderTestsSubtab() {
+  const el = document.getElementById("testing-subtab-content");
+  if (!el) return;
+
+  if (!currentProfile) {
+    el.innerHTML = `<p class="empty-state">Login with Discord to see active tests.</p>`;
+    return;
+  }
+  if (!currentProfile.isTester) {
+    el.innerHTML = `<p class="empty-state">Only testers can view active tests.</p>`;
+    return;
+  }
+
+  el.innerHTML = `<p class="empty-state">Loading...</p>`;
+  const live = await fetchLiveTestsForTester();
+
+  if (live.length === 0) {
+    el.innerHTML = `<p class="empty-state">No active tests right now.</p>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="tests-list">
+      ${live.map((t) => `
+        <div class="test-ticket-row">
+          <img src="${headUrl(t.players.username, 32)}" class="result-row-head" alt="" />
+          <div class="result-row-info">
+            <div class="result-row-name">${escapeHtml(t.players.username)}</div>
+            <div class="result-row-gamemode">${escapeHtml(gmLabel(t.gamemode))} &bull; ${escapeHtml(t.region || "")}</div>
+          </div>
+          <span class="test-ticket-status">In Progress</span>
+          ${t.discord_ticket_channel_id
+            ? `<span class="test-ticket-discord">Discord channel created</span>`
+            : `<span class="test-ticket-discord test-ticket-pending">Creating Discord channel…</span>`}
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
 async function renderResultsSubtab() {
   const el = document.getElementById("testing-subtab-content");
   if (!el) return;
@@ -391,6 +434,7 @@ function subscribeQueueRealtime() {
     })
     .on("postgres_changes", { event: "*", schema: "public", table: "live_tests" }, () => {
       if (currentPage === "testing" && testingSubtab === "results") renderResultsSubtab();
+      if (currentPage === "testing" && testingSubtab === "tests") renderTestsSubtab();
     })
     .subscribe();
 }
