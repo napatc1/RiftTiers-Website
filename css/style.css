@@ -1371,6 +1371,35 @@ td:last-child {
   background: var(--accent-dim);
 }
 
+.testing-region-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.testing-region-btn {
+  box-sizing: border-box;
+  min-height: 28px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-family: "Lexend", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.testing-region-btn.active {
+  border-color: var(--accent);
+  color: var(--text);
+  background: var(--accent-dim);
+}
+
 .testing-gm-icon {
   width: 16px;
   height: 16px;

@@ -1,25 +1,42 @@
 // The "Testing" page: Queues + Results subtabs, backed live by Supabase.
 let testingSubtab = "queues"; // "queues" | "results"
 let testingGamemode = "vanilla";
+let testingRegion = null; // the region tab currently being viewed
 let testingChannel = null;
+
+const REGIONS = ["NA", "EU", "AS", "ME", "AU"];
 
 function gmLabel(id) {
   const gm = GAMEMODES.find((g) => g.id === id);
   return gm ? gm.label : id;
 }
 
-async function fetchQueueData(gamemode) {
+// Managers/moderators/owners can look at and manage any region's queue;
+// everyone else (including ordinary testers) is locked to their own.
+function isRegionStaff() {
+  return !!(currentProfile && (currentProfile.isManager || currentProfile.isModerator || currentProfile.isOwner));
+}
+
+// Whichever region the panel should currently show: the region tab staff
+// picked, or the player's own profile region for everyone else.
+function effectiveTestingRegion() {
+  if (isRegionStaff() && testingRegion) return testingRegion;
+  return currentProfile ? currentProfile.region : null;
+}
+
+async function fetchQueueData(gamemode, region) {
+  const key = `${gamemode}:${region}`;
   const [{ data: entries }, { data: testers }, { data: closedRow }] = await Promise.all([
     sb
       .from("queue_entries")
       .select("id, player_id, joined_at, region, players!queue_entries_player_id_fkey(username)")
-      .eq("gamemode", gamemode)
+      .eq("gamemode", key)
       .order("joined_at", { ascending: true }),
     sb
       .from("queue_testers")
       .select("player_id, players!queue_testers_player_id_fkey(username)")
-      .eq("gamemode", gamemode),
-    sb.from("queue_closed").select("closed, locked").eq("gamemode", gamemode).maybeSingle(),
+      .eq("gamemode", key),
+    sb.from("queue_closed").select("closed, locked").eq("gamemode", key).maybeSingle(),
   ]);
   return {
     entries: entries || [],
@@ -82,6 +99,17 @@ function renderTestingTab() {
 
 async function renderQueuesSubtab() {
   const el = document.getElementById("testing-subtab-content");
+  const region = effectiveTestingRegion();
+  const regionTabsHtml = isRegionStaff()
+    ? `
+    <div class="testing-region-tabs">
+      ${REGIONS.map(
+        (r) => `
+        <button type="button" class="testing-region-btn ${r === region ? "active" : ""}" data-region="${r}">${r}</button>`
+      ).join("")}
+    </div>`
+    : "";
+
   el.innerHTML = `
     <div class="testing-gamemode-tabs">
       ${GAMEMODES.map(
@@ -91,11 +119,18 @@ async function renderQueuesSubtab() {
         </button>`
       ).join("")}
     </div>
+    ${regionTabsHtml}
     <div id="queue-panel" class="queue-panel"><p class="empty-state">Loading queue...</p></div>
   `;
   el.querySelectorAll(".testing-gm-btn").forEach((btn) => {
     btn.onclick = () => {
       testingGamemode = btn.dataset.gm;
+      renderQueuesSubtab();
+    };
+  });
+  el.querySelectorAll(".testing-region-btn").forEach((btn) => {
+    btn.onclick = () => {
+      testingRegion = btn.dataset.region;
       renderQueuesSubtab();
     };
   });
@@ -106,7 +141,17 @@ async function renderQueuesSubtab() {
 async function loadAndRenderQueuePanel() {
   const panel = document.getElementById("queue-panel");
   if (!panel) return;
-  const { entries, testers, closed, locked } = await fetchQueueData(testingGamemode);
+  const region = effectiveTestingRegion();
+  if (!region) {
+    panel.innerHTML = `<p class="empty-state">Set your region (Edit profile) to see your queue.</p>`;
+    return;
+  }
+  const { entries, testers, closed, locked } = await fetchQueueData(testingGamemode, region);
+  // Staff viewing a region other than their own can still manage that
+  // queue, but server-side RPCs require them to pass it explicitly — a
+  // normal tester/testee never needs this since they only ever see their
+  // own region.
+  const regionOverride = isRegionStaff() && region !== currentProfile.region ? region : undefined;
 
   const isLoggedIn = !!currentProfile;
   const isTester = isLoggedIn && currentProfile.isTester;
@@ -189,18 +234,12 @@ async function loadAndRenderQueuePanel() {
       joinLeaveBtn.disabled = true;
       try {
         if (myEntry) {
-          const { error } = await sb.rpc("leave_queue", { p_gamemode: testingGamemode });
+          const { error } = await sb.rpc("leave_queue", { p_gamemode: testingGamemode, p_high: false });
           if (error) throw error;
         } else {
-          const region = prompt("Your region? (NA, EU, AS, ME, AU)", currentProfile.region || "NA");
-          if (!region) {
-            joinLeaveBtn.disabled = false;
-            return;
-          }
-          const { error } = await sb.rpc("join_queue", {
-            p_gamemode: testingGamemode,
-            p_region: region.trim().toUpperCase(),
-          });
+          // Region is no longer asked for — joining always uses the
+          // player's own verified profile region, same as Discord.
+          const { error } = await sb.rpc("join_queue", { p_gamemode: testingGamemode });
           if (error) throw error;
         }
       } catch (err) {
@@ -230,18 +269,16 @@ async function loadAndRenderQueuePanel() {
   const toggleClosedBtn = document.getElementById("toggle-closed-btn");
   if (toggleClosedBtn) {
     toggleClosedBtn.onclick = async () => {
-      // Opening the queue uses the tester's own region automatically
-      // (same as Discord) — no more typing it in by hand.
-      if (closed && !currentProfile.region) {
-        alert("Set your region first (Edit profile) before opening a queue.");
-        return;
-      }
       toggleClosedBtn.disabled = true;
       try {
+        // Region is only passed when staff is managing a region other than
+        // their own — a normal tester always manages their own region, which
+        // the function derives server-side.
         const { error } = await sb.rpc("set_queue_closed", {
           p_gamemode: testingGamemode,
           p_closed: !closed,
-          p_region: closed ? currentProfile.region : undefined,
+          p_region: regionOverride,
+          p_high: false,
         });
         if (error) throw error;
       } catch (err) {
@@ -256,7 +293,11 @@ async function loadAndRenderQueuePanel() {
     claimNextBtn.onclick = async () => {
       claimNextBtn.disabled = true;
       try {
-        const { error } = await sb.rpc("claim_next", { p_gamemode: testingGamemode });
+        const { error } = await sb.rpc("claim_next", {
+          p_gamemode: testingGamemode,
+          p_region: regionOverride,
+          p_high: false,
+        });
         if (error) throw error;
       } catch (err) {
         alert(err.message || "Something went wrong.");
