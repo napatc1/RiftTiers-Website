@@ -509,9 +509,9 @@ td:last-child {
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 4px 0 24px;
+  padding: 24px 28px 24px;
   border-bottom: 1px solid var(--line);
-  margin-bottom: 24px;
+  margin-bottom: 0;
   animation: rowIn 0.3s ease both;
 }
 
@@ -555,6 +555,7 @@ td:last-child {
 .profile-details {
   display: flex;
   gap: 40px;
+  padding: 24px 28px;
   animation: rowIn 0.35s ease both;
 }
 
@@ -1885,6 +1886,7 @@ td:last-child {
 .settings-page {
   max-width: 540px;
   margin: 0 auto;
+  padding: 24px 24px 32px;
   display: flex;
   flex-direction: column;
   gap: 20px;
