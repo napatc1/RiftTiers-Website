@@ -230,11 +230,18 @@ async function loadAndRenderQueuePanel() {
   const toggleClosedBtn = document.getElementById("toggle-closed-btn");
   if (toggleClosedBtn) {
     toggleClosedBtn.onclick = async () => {
+      // Opening the queue uses the tester's own region automatically
+      // (same as Discord) — no more typing it in by hand.
+      if (closed && !currentProfile.region) {
+        alert("Set your region first (Edit profile) before opening a queue.");
+        return;
+      }
       toggleClosedBtn.disabled = true;
       try {
         const { error } = await sb.rpc("set_queue_closed", {
           p_gamemode: testingGamemode,
           p_closed: !closed,
+          p_region: closed ? currentProfile.region : undefined,
         });
         if (error) throw error;
       } catch (err) {
