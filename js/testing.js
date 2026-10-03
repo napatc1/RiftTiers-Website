@@ -4,8 +4,6 @@ let testingGamemode = "vanilla";
 let testingRegion = null; // the region tab currently being viewed
 let testingChannel = null;
 
-const REGIONS = ["NA", "EU", "AS", "ME", "AU"];
-
 function gmLabel(id) {
   const gm = GAMEMODES.find((g) => g.id === id);
   return gm ? gm.label : id;
