@@ -199,10 +199,8 @@ async function loadAndRenderQueuePanel() {
   if (!isLoggedIn) {
     actionsHtml = `<p class="empty-state">Login with Discord to join the queue.</p>`;
   } else if (isTester) {
-    const amTesting = testers.some((t) => t.player_id === myPlayerId);
     actionsHtml = `
       <div class="queue-actions">
-        <button type="button" id="toggle-testing-btn" class="auth-btn">${amTesting ? "Stop Testing" : "Start Testing"}</button>
         <button type="button" id="toggle-closed-btn" class="auth-btn">${closed ? "Open Queue" : "Close Queue"}</button>
         <button type="button" id="claim-next-btn" class="auth-btn auth-btn-primary" ${entries.length === 0 ? "disabled" : ""}>Next / Pull</button>
         ${joinLeaveButtonHtml}
@@ -252,28 +250,12 @@ async function loadAndRenderQueuePanel() {
     };
   }
 
-  const toggleTestingBtn = document.getElementById("toggle-testing-btn");
-  if (toggleTestingBtn) {
-    toggleTestingBtn.onclick = async () => {
-      const amTesting = testers.some((t) => t.player_id === myPlayerId);
-      toggleTestingBtn.disabled = true;
-      try {
-        const { error } = amTesting
-          ? await sb.rpc("leave_testing", { p_gamemode: testingGamemode })
-          : await sb.rpc("join_testing", { p_gamemode: testingGamemode });
-        if (error) throw error;
-      } catch (err) {
-        alert(err.message || "Something went wrong.");
-      }
-      await loadAndRenderQueuePanel();
-    };
-  }
-
   const toggleClosedBtn = document.getElementById("toggle-closed-btn");
   if (toggleClosedBtn) {
     toggleClosedBtn.onclick = async () => {
       toggleClosedBtn.disabled = true;
       try {
+        const opening = closed; // true if we're about to open it
         // Region is only passed when staff is managing a region other than
         // their own — a normal tester always manages their own region, which
         // the function derives server-side.
@@ -284,6 +266,10 @@ async function loadAndRenderQueuePanel() {
           p_high: false,
         });
         if (error) throw error;
+        // Auto-join as active tester when opening.
+        if (opening) {
+          await sb.rpc("join_testing", { p_gamemode: testingGamemode }).catch(() => {});
+        }
       } catch (err) {
         alert(err.message || "Something went wrong.");
       }
