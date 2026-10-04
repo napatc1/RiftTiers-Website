@@ -268,7 +268,7 @@ async function loadAndRenderQueuePanel() {
         if (error) throw error;
         // Auto-join as active tester when opening.
         if (opening) {
-          await sb.rpc("join_testing", { p_gamemode: testingGamemode }).catch(() => {});
+          await sb.rpc("join_testing", { p_gamemode: testingGamemode });
         }
       } catch (err) {
         alert(err.message || "Something went wrong.");
