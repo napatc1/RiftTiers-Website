@@ -266,12 +266,13 @@ async function loadAndRenderQueuePanel() {
           p_high: false,
         });
         if (error) throw error;
-        // Auto-join as active tester when opening.
-        if (opening) {
-          await sb.rpc("join_testing", { p_gamemode: testingGamemode });
-        }
       } catch (err) {
         alert(err.message || "Something went wrong.");
+        return;
+      }
+      // Auto-join as active tester when opening (best-effort, errors silenced).
+      if (opening) {
+        await sb.rpc("join_testing", { p_gamemode: testingGamemode });
       }
       await loadAndRenderQueuePanel();
     };
