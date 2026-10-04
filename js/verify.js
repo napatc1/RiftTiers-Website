@@ -47,6 +47,15 @@ function renderVerifyTab() {
           <input type="text" id="verify-ign" class="verify-input" placeholder="Your Minecraft username" value="${escapeHtml((currentProfile && currentProfile.username) || "")}" required />
         </label>
         <label class="verify-label">
+          Platform
+          <select id="verify-platform" class="verify-input">
+            <option value="" disabled ${currentProfile && currentProfile.platform ? "" : "selected"}>Select a platform</option>
+            <option value="cracked" ${currentProfile && currentProfile.platform === "cracked" ? "selected" : ""}>Cracked</option>
+            <option value="premium" ${currentProfile && currentProfile.platform === "premium" ? "selected" : ""}>Premium</option>
+            <option value="bedrock" ${currentProfile && currentProfile.platform === "bedrock" ? "selected" : ""}>Bedrock</option>
+          </select>
+        </label>
+        <label class="verify-label">
           Region
           <select id="verify-region" class="verify-input">
             <option value="" disabled ${currentProfile && currentProfile.region ? "" : "selected"}>Select a region</option>
@@ -64,12 +73,17 @@ function renderVerifyTab() {
   document.getElementById("verify-form").onsubmit = async (e) => {
     e.preventDefault();
     const ign = document.getElementById("verify-ign").value.trim();
+    const platform = document.getElementById("verify-platform").value;
     const region = document.getElementById("verify-region").value;
     const errorEl = document.getElementById("verify-error");
     errorEl.textContent = "";
 
     if (!ign) {
       errorEl.textContent = "Enter your Minecraft IGN.";
+      return;
+    }
+    if (!platform) {
+      errorEl.textContent = "Select a platform.";
       return;
     }
     if (!region) {
@@ -82,7 +96,7 @@ function renderVerifyTab() {
     try {
       const { error } = await sb.rpc("set_my_profile", {
         p_username: ign,
-        p_platform: null,
+        p_platform: platform,
         p_region: region,
       });
       if (error) throw error;

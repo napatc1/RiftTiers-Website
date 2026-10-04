@@ -25,7 +25,7 @@ async function refreshProfile() {
   const { data, error } = await sb
     .from("profiles")
     .select(
-      "player_id, discord_username, is_tester, is_senior_tester, is_manager, is_moderator, is_owner, players(username, region)"
+      "player_id, discord_username, is_tester, is_senior_tester, is_manager, is_moderator, is_owner, players(username, region, platform)"
     )
     .eq("id", session.user.id)
     .single();
@@ -39,6 +39,7 @@ async function refreshProfile() {
     playerId: data.player_id,
     username: (data.players && data.players.username) || data.discord_username,
     region: data.players ? data.players.region : null,
+    platform: data.players ? data.players.platform : null,
     isTester: !!data.is_tester,
     isSeniorTester: !!data.is_senior_tester,
     isManager: !!data.is_manager,
