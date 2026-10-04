@@ -1617,6 +1617,24 @@ td:last-child {
   color: #f59e0b;
 }
 
+.open-ticket-btn {
+  margin-left: auto;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #5865f2;
+  background: rgba(88, 101, 242, 0.12);
+  border: 1px solid rgba(88, 101, 242, 0.3);
+  border-radius: 6px;
+  padding: 4px 10px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+.open-ticket-btn:hover {
+  background: rgba(88, 101, 242, 0.22);
+  border-color: rgba(88, 101, 242, 0.55);
+}
+
 .high-test-badge {
   display: inline-block;
   font-size: 0.68rem;

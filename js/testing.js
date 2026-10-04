@@ -1,4 +1,6 @@
 // The "Testing" page: Queues + Tests + Results subtabs, backed live by Supabase.
+const DISCORD_GUILD_ID = "1555512928365576244"; // RyftTiers server ID
+
 let testingSubtab = "queues"; // "queues" | "tests" | "results"
 let testingGamemode = "vanilla";
 let testingRegion = null; // the region tab currently being viewed
@@ -340,8 +342,8 @@ async function renderTestsSubtab() {
           </div>
           <span class="test-ticket-status">In Progress</span>
           ${t.discord_ticket_channel_id
-            ? `<span class="test-ticket-discord">Discord channel created</span>`
-            : `<span class="test-ticket-discord test-ticket-pending">Creating Discord channel…</span>`}
+            ? `<a href="https://discord.com/channels/${DISCORD_GUILD_ID}/${t.discord_ticket_channel_id}" target="_blank" rel="noopener" class="open-ticket-btn">Open Ticket ↗</a>`
+            : `<span class="test-ticket-discord test-ticket-pending">Creating channel…</span>`}
         </div>
       `).join("")}
     </div>
