@@ -2,10 +2,32 @@
   box-sizing: border-box;
 }
 
-/* Dark theme (default) */
+/* Transparent theme (default) — glassmorphism over rich gradient background */
 :root {
+  --bg: #060810;
+  --panel: rgba(255, 255, 255, 0.05);
+  --panel-blur: blur(18px);
+  --line: rgba(255, 255, 255, 0.1);
+  --text: #e9eaec;
+  --text-dim: #838a94;
+  --accent: #3fa0f5;
+  --accent-dim: rgba(63, 160, 245, 0.15);
+  --ember: #ff7a45;
+  --ice: #5fd0ff;
+  --input-bg: rgba(255, 255, 255, 0.07);
+  --input-border: rgba(255, 255, 255, 0.12);
+  --bg-orb-a: rgba(56, 120, 240, 0.35);
+  --bg-orb-b: rgba(120, 60, 220, 0.28);
+  --bg-orb-c: rgba(20, 190, 210, 0.18);
+  --bg-orb-d: rgba(200, 60, 160, 0.12);
+  color-scheme: dark;
+}
+
+/* Dark theme */
+:root[data-theme="dark"] {
   --bg: #0a0d12;
   --panel: #12161c;
+  --panel-blur: none;
   --line: rgba(255, 255, 255, 0.07);
   --text: #e9eaec;
   --text-dim: #838a94;
@@ -15,8 +37,10 @@
   --ice: #5fd0ff;
   --input-bg: #1a1f28;
   --input-border: rgba(255,255,255,0.1);
-  --bg-body-gradient-a: rgba(63, 160, 245, 0.08);
-  --bg-body-gradient-b: rgba(95, 208, 255, 0.05);
+  --bg-orb-a: rgba(63, 160, 245, 0.08);
+  --bg-orb-b: rgba(95, 208, 255, 0.05);
+  --bg-orb-c: transparent;
+  --bg-orb-d: transparent;
   color-scheme: dark;
 }
 
@@ -24,6 +48,7 @@
 :root[data-theme="light"] {
   --bg: #f0f2f5;
   --panel: #ffffff;
+  --panel-blur: none;
   --line: rgba(0, 0, 0, 0.08);
   --text: #111318;
   --text-dim: #6b7280;
@@ -33,9 +58,55 @@
   --ice: #0ea5e9;
   --input-bg: #f8f9fb;
   --input-border: rgba(0,0,0,0.12);
-  --bg-body-gradient-a: rgba(37, 99, 235, 0.05);
-  --bg-body-gradient-b: rgba(14, 165, 233, 0.04);
+  --bg-orb-a: rgba(37, 99, 235, 0.05);
+  --bg-orb-b: rgba(14, 165, 233, 0.04);
+  --bg-orb-c: transparent;
+  --bg-orb-d: transparent;
   color-scheme: light;
+}
+
+/* System theme — follows OS preference */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    --bg: #060810;
+    --panel: rgba(255, 255, 255, 0.05);
+    --panel-blur: blur(18px);
+    --line: rgba(255, 255, 255, 0.1);
+    --text: #e9eaec;
+    --text-dim: #838a94;
+    --accent: #3fa0f5;
+    --accent-dim: rgba(63, 160, 245, 0.15);
+    --ember: #ff7a45;
+    --ice: #5fd0ff;
+    --input-bg: rgba(255, 255, 255, 0.07);
+    --input-border: rgba(255, 255, 255, 0.12);
+    --bg-orb-a: rgba(56, 120, 240, 0.35);
+    --bg-orb-b: rgba(120, 60, 220, 0.28);
+    --bg-orb-c: rgba(20, 190, 210, 0.18);
+    --bg-orb-d: rgba(200, 60, 160, 0.12);
+    color-scheme: dark;
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] {
+    --bg: #f0f2f5;
+    --panel: #ffffff;
+    --panel-blur: none;
+    --line: rgba(0, 0, 0, 0.08);
+    --text: #111318;
+    --text-dim: #6b7280;
+    --accent: #2563eb;
+    --accent-dim: rgba(37, 99, 235, 0.10);
+    --ember: #ea580c;
+    --ice: #0ea5e9;
+    --input-bg: #f8f9fb;
+    --input-border: rgba(0,0,0,0.12);
+    --bg-orb-a: rgba(37, 99, 235, 0.05);
+    --bg-orb-b: rgba(14, 165, 233, 0.04);
+    --bg-orb-c: transparent;
+    --bg-orb-d: transparent;
+    color-scheme: light;
+  }
 }
 
 body {
@@ -44,17 +115,59 @@ body {
   color: var(--text);
   font-family: "Lexend", "Segoe UI", Arial, sans-serif;
   background-image:
-    radial-gradient(ellipse 900px 500px at 15% -10%, var(--bg-body-gradient-a), transparent),
-    radial-gradient(ellipse 700px 400px at 100% 0%, var(--bg-body-gradient-b), transparent);
+    radial-gradient(ellipse 800px 700px at 10% 5%,  var(--bg-orb-a), transparent),
+    radial-gradient(ellipse 700px 600px at 90% 10%, var(--bg-orb-b), transparent),
+    radial-gradient(ellipse 600px 500px at 60% 80%, var(--bg-orb-c), transparent),
+    radial-gradient(ellipse 500px 400px at 5%  90%, var(--bg-orb-d), transparent);
   background-attachment: fixed;
+}
+
+/* Glass panels — apply blur to all panel-bg elements in transparent/system-dark mode.
+   We target the specific elements that use --panel as their background. */
+:root:not([data-theme]) #leaderboard,
+:root:not([data-theme]) .auth-widget-inner,
+:root:not([data-theme]) .page-panel,
+:root:not([data-theme]) .queue-panel,
+:root:not([data-theme]) .active-testers-panel,
+:root:not([data-theme]) .test-result-row,
+:root:not([data-theme]) .testing-gm-btn,
+:root:not([data-theme]) .testing-region-btn,
+:root:not([data-theme]) .testing-profile-bar,
+:root:not([data-theme]) .support-ticket-row,
+:root:not([data-theme]) .support-ticket-detail,
+:root:not([data-theme]) .settings-section,
+:root:not([data-theme]) .settings-page,
+:root:not([data-theme]) .test-chat-panel,
+:root:not([data-theme]) .tester-card,
+:root:not([data-theme]) .profile-card,
+:root:not([data-theme]) .queue-closed-banner,
+:root[data-theme="system"] #leaderboard,
+:root[data-theme="system"] .auth-widget-inner,
+:root[data-theme="system"] .page-panel,
+:root[data-theme="system"] .queue-panel,
+:root[data-theme="system"] .active-testers-panel,
+:root[data-theme="system"] .test-result-row,
+:root[data-theme="system"] .testing-gm-btn,
+:root[data-theme="system"] .testing-region-btn,
+:root[data-theme="system"] .testing-profile-bar,
+:root[data-theme="system"] .support-ticket-row,
+:root[data-theme="system"] .support-ticket-detail,
+:root[data-theme="system"] .settings-section,
+:root[data-theme="system"] .settings-page,
+:root[data-theme="system"] .test-chat-panel,
+:root[data-theme="system"] .tester-card,
+:root[data-theme="system"] .profile-card,
+:root[data-theme="system"] .queue-closed-banner {
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 /* ---------- header ---------- */
 
 header {
-  background: rgba(20, 23, 26, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--panel);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   padding: 18px 32px;
   border-bottom: 1px solid var(--line);
   position: sticky;

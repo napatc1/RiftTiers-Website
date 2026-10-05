@@ -12,14 +12,14 @@ const SETTINGS_PLATFORMS = [
 // ---------- theme ----------
 
 function getStoredTheme() {
-  try { return localStorage.getItem("ryft-theme") || "dark"; } catch { return "dark"; }
+  try { return localStorage.getItem("ryft-theme") || "transparent"; } catch { return "transparent"; }
 }
 
 function applyTheme(theme) {
-  if (theme === "light") {
-    document.documentElement.setAttribute("data-theme", "light");
-  } else {
+  if (theme === "transparent") {
     document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.setAttribute("data-theme", theme); // "dark" | "light" | "system"
   }
   try { localStorage.setItem("ryft-theme", theme); } catch {}
 }
@@ -63,8 +63,10 @@ function renderSettingsPage() {
         <div class="settings-field">
           <span class="settings-label">Theme</span>
           <div class="theme-toggle">
+            <button type="button" class="theme-pill ${currentTheme === "transparent" ? "active" : ""}" data-theme="transparent">Transparent</button>
             <button type="button" class="theme-pill ${currentTheme === "dark" ? "active" : ""}" data-theme="dark">Dark</button>
             <button type="button" class="theme-pill ${currentTheme === "light" ? "active" : ""}" data-theme="light">Light</button>
+            <button type="button" class="theme-pill ${currentTheme === "system" ? "active" : ""}" data-theme="system">System</button>
           </div>
         </div>
       </section>
