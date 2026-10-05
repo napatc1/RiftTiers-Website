@@ -400,11 +400,10 @@ function renderProfile(playerName) {
 }
 
 // ---------- URL routing ----------
-// Clean paths like /RiftTiers-Website/Testing for each tab. GitHub Pages
-// can't route these server-side (static hosting), so 404.html + the inline
-// script in index.html's <head> do the redirect dance that makes direct
-// hits and refreshes land back on the right tab. See those two files.
-const SITE_BASE_PATH = "/RiftTiers-Website/";
+// Clean paths like /Testing for each tab. Cloudflare Pages serves the site
+// from the root, so paths are just /Home, /Testing, etc. 404.html + the
+// inline script in index.html's <head> handle direct hits and refreshes.
+const SITE_BASE_PATH = "/";
 const PAGE_PATH_NAMES = {
   home: "Home",
   leaderboard: "Leaderboard",
@@ -416,7 +415,6 @@ const PAGE_PATH_NAMES = {
 
 function pageFromLocation() {
   let path = window.location.pathname;
-  if (path.startsWith(SITE_BASE_PATH)) path = path.slice(SITE_BASE_PATH.length);
   path = path.replace(/^\/+|\/+$/g, "");
   if (!path) return "home";
   const seg = path.split("/")[0].toLowerCase();
@@ -428,7 +426,7 @@ function pageFromLocation() {
 
 function updateUrlForPage(page) {
   const seg = PAGE_PATH_NAMES[page] !== undefined ? PAGE_PATH_NAMES[page] : "";
-  const url = SITE_BASE_PATH + seg;
+  const url = "/" + seg;
   if (window.location.pathname !== url) {
     history.pushState({ page }, "", url);
   }

@@ -4,13 +4,12 @@
   <meta charset="UTF-8" />
   <title>RyftTiers</title>
   <script>
-    // Single Page Apps for GitHub Pages (https://github.com/rafgraph/spa-github-pages)
-    // GitHub Pages has no server-side routing, so a direct hit on a path
-    // like /RiftTiers-Website/Testing 404s here. This bounces it to
-    // index.html with the intended path packed into the query string, and
-    // the inline script in index.html's <head> unpacks it before the app
-    // runs, so the address bar ends up correct with no visible redirect.
-    var pathSegmentsToKeep = 1;
+    // Single Page Apps for Cloudflare Pages: a direct hit on a path
+    // like /Testing 404s here. This bounces it to index.html with the
+    // intended path packed into the query string, and the inline script
+    // in index.html's <head> unpacks it before the app runs, so the
+    // address bar ends up correct with no visible redirect.
+    var pathSegmentsToKeep = 0;
     var l = window.location;
     l.replace(
       l.protocol + "//" + l.hostname + (l.port ? ":" + l.port : "") +
