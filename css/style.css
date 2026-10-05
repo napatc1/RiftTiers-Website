@@ -1364,6 +1364,23 @@ td:last-child {
   line-height: 1.55;
 }
 
+.news-show-more {
+  width: 100%;
+  margin-top: 4px;
+  padding: 9px;
+  background: transparent;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.news-show-more:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 .home-section h3 {
   margin: 0 0 10px;
   font-size: 1.05rem;

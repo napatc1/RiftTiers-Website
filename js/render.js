@@ -579,7 +579,7 @@ async function renderHome() {
       .from("announcements")
       .select("id, title, body, tag, created_at")
       .order("created_at", { ascending: false })
-      .limit(10);
+      .limit(50);
 
     const newsList = document.getElementById("home-news-list");
     if (!newsList) return; // user navigated away
@@ -589,16 +589,40 @@ async function renderHome() {
       return;
     }
 
-    newsList.innerHTML = data.map(a => `
-      <div class="news-card">
-        <div class="news-card-header">
-          <span class="news-tag ${announcementTagClass(a.tag)}">${escapeHtml(a.tag)}</span>
-          <span class="news-time">${relativeTime(a.created_at)}</span>
+    function newsCardHtml(a) {
+      return `
+        <div class="news-card">
+          <div class="news-card-header">
+            <span class="news-tag ${announcementTagClass(a.tag)}">${escapeHtml(a.tag)}</span>
+            <span class="news-time">${relativeTime(a.created_at)}</span>
+          </div>
+          <div class="news-card-title">${escapeHtml(a.title)}</div>
+          <div class="news-card-body">${escapeHtml(a.body)}</div>
         </div>
-        <div class="news-card-title">${escapeHtml(a.title)}</div>
-        <div class="news-card-body">${escapeHtml(a.body)}</div>
-      </div>
-    `).join("");
+      `;
+    }
+
+    const visible = data.slice(0, 3);
+    const hidden  = data.slice(3);
+
+    newsList.innerHTML =
+      visible.map(newsCardHtml).join("") +
+      (hidden.length > 0 ? `
+        <div class="news-older" id="news-older" style="display:none">
+          ${hidden.map(newsCardHtml).join("")}
+        </div>
+        <button class="news-show-more" id="news-show-more">
+          Show ${hidden.length} older announcement${hidden.length !== 1 ? "s" : ""}
+        </button>
+      ` : "");
+
+    const btn = document.getElementById("news-show-more");
+    if (btn) {
+      btn.onclick = () => {
+        document.getElementById("news-older").style.display = "";
+        btn.remove();
+      };
+    }
   } catch (err) {
     const newsList = document.getElementById("home-news-list");
     if (newsList) newsList.innerHTML = `<p class="empty-state">Couldn't load announcements.</p>`;
