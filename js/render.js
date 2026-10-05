@@ -455,6 +455,8 @@ function setPage(page, opts) {
     renderTestingTab();
   } else if (page === "support") {
     renderSupportTab();
+  } else if (page === "media") {
+    renderMediaTab();
   } else if (page === "verify") {
     renderVerifyTab();
   } else if (page === "settings") {
