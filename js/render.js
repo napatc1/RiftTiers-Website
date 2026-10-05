@@ -506,36 +506,42 @@ function renderHome() {
   const container = document.getElementById("leaderboard");
   container.innerHTML = `
     <div class="home-overview">
-      <section class="home-section">
-        <h3>Welcome to CleanTiers</h3>
-        <p>CleanTiers ranks players by skill in Minecraft PvP gamemodes. Get tested by a staff tester in Discord, and your tier shows up here automatically.</p>
+      <section class="home-section home-hero">
+        <h2 class="home-hero-title">Welcome to <span class="home-hero-accent">RyftTiers</span></h2>
+        <p class="home-hero-sub">Skill-based tier rankings for Minecraft PvP — tested by real staff, updated live.</p>
       </section>
 
       <section class="home-section">
-        <h3>How Testing Works</h3>
+        <h3>How It Works</h3>
         <ol class="home-steps">
-          <li>Run <code>/verify username:&lt;your IGN&gt;</code> once in Discord to link your Minecraft account.</li>
-          <li>Head to the gamemode's channel and click <strong>Join Queue</strong> on the queue message.</li>
-          <li>Wait for a tester to click <strong>Next</strong> and pull you into a private ticket.</li>
-          <li>Play your test with the tester(s) in that ticket.</li>
-          <li>Once finished, the tester submits your result and your tier appears on the Leaderboard.</li>
+          <li>Link your Minecraft account on the <strong>Verify</strong> tab or run <code>/verify</code> in Discord.</li>
+          <li>Go to the <strong>Testing</strong> tab (or your gamemode's Discord channel) and click <strong>Join Queue</strong>.</li>
+          <li>A tester will pull you into a private ticket when it's your turn.</li>
+          <li>Play your test — the tester judges your skill live.</li>
+          <li>Your tier is submitted and shows up on the <strong>Leaderboard</strong> instantly.</li>
         </ol>
       </section>
 
       <section class="home-section">
         <h3>Rules</h3>
         <ul class="home-rules">
-          <li>Be respectful to testers and other players in the queue at all times.</li>
-          <li>No cheating, hacked clients, or exploiting bugs during a test.</li>
-          <li>Don't leave mid-test unless something's genuinely wrong — testers are volunteering their time.</li>
-          <li>There's a cooldown after each test before you can queue again for the same gamemode.</li>
-          <li>Tier decisions are final unless a manager/admin reviews and overturns them.</li>
+          <li>Respect testers and other players at all times.</li>
+          <li>No cheats, hacked clients, or bug exploits during a test.</li>
+          <li>Don't leave mid-test without a real reason — testers volunteer their time.</li>
+          <li>A cooldown applies after each test before you can re-queue for the same gamemode.</li>
+          <li>Tier decisions are final unless a manager reviews and overturns them.</li>
         </ul>
       </section>
 
       <section class="home-section">
-        <h3>Where To Look</h3>
-        <p>The bottom-left corner shows <strong>Active Tickets</strong> (tests happening right now) and <strong>Recent Tests</strong> from the last 48 hours. Check the <strong>Leaderboard</strong> tab for rankings, or <strong>Testers</strong> for who's been doing the testing.</p>
+        <h3>What's Where</h3>
+        <ul class="home-rules">
+          <li><strong>Leaderboard</strong> — full rankings filtered by gamemode, region, and tier.</li>
+          <li><strong>Testers</strong> — the staff doing the testing and their stats.</li>
+          <li><strong>Testing</strong> — join the queue, track your position, and chat in your test ticket.</li>
+          <li><strong>Support</strong> — open a ticket if you have an issue or question.</li>
+          <li>The bottom-left widget shows <strong>live tests</strong> happening right now and recent results.</li>
+        </ul>
       </section>
     </div>
   `;

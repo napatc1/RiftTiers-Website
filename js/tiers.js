@@ -10,7 +10,7 @@ const TIER_POINTS = {
 // Best-to-worst order, used for sorting a single gamemode leaderboard.
 const TIER_ORDER = ["HT1", "LT1", "HT2", "LT2", "HT3", "LT3", "HT4", "LT4", "HT5", "LT5"];
 
-// Every gamemode CleanTiers tracks. Add more here as you support them —
+// Every gamemode RyftTiers tracks. Add more here as you support them —
 // nothing else in the codebase needs to change.
 const GAMEMODES = [
   { id: "vanilla", label: "Vanilla", icon: "images/vanilla-icon.svg" },
