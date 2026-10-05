@@ -51,7 +51,7 @@ async function refreshProfile() {
 async function loginWithDiscord() {
   await sb.auth.signInWithOAuth({
     provider: "discord",
-    options: { redirectTo: window.location.href },
+    options: { redirectTo: window.location.origin + "/" },
   });
 }
 
