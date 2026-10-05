@@ -514,7 +514,7 @@ function renderHome() {
       <section class="home-section">
         <h3>How It Works</h3>
         <ol class="home-steps">
-          <li>Link your Minecraft account on the <strong>Verify</strong> tab or run <code>/verify</code> in Discord.</li>
+          <li>Link your Minecraft account on the <strong>Verify</strong> tab above.</li>
           <li>Go to the <strong>Testing</strong> tab (or your gamemode's Discord channel) and click <strong>Join Queue</strong>.</li>
           <li>A tester will pull you into a private ticket when it's your turn.</li>
           <li>Play your test — the tester judges your skill live.</li>
