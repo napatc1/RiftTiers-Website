@@ -23,6 +23,10 @@ function renderMediaTab() {
 
 function renderMediaLanding() {
   const container = document.getElementById("leaderboard");
+  container.style.overflow = "visible";
+  container.style.background = "none";
+  container.style.border = "none";
+  container.style.borderRadius = "0";
   container.innerHTML = `
     <div class="media-page">
       <section class="media-hero">
@@ -78,6 +82,10 @@ function renderMediaLanding() {
 
 function renderMediaForm() {
   const container = document.getElementById("leaderboard");
+  container.style.overflow = "visible";
+  container.style.background = "none";
+  container.style.border = "none";
+  container.style.borderRadius = "0";
   container.innerHTML = `
     <div class="media-page">
       <button type="button" class="back-btn" id="media-back-btn">&larr; Back</button>
@@ -105,10 +113,6 @@ function renderMediaForm() {
         <label class="support-form-label" for="media-follower-count">Follower / Subscriber Count</label>
         <input id="media-follower-count" class="support-form-input" type="text" placeholder="e.g. ~2,500 or 500" required />
 
-        <label class="support-form-label" for="media-sample-videos">Sample Videos / Content Links</label>
-        <textarea id="media-sample-videos" class="support-form-textarea" rows="3"
-          placeholder="Paste 1–3 links to your best videos or posts, or describe your content." required></textarea>
-
         <label class="support-form-label" for="media-why">Why do you want the Media role?</label>
         <textarea id="media-why" class="support-form-textarea" rows="4"
           placeholder="Tell us about your content plans for RyftTiers..." required></textarea>
@@ -134,10 +138,9 @@ function renderMediaForm() {
     const contentType  = document.getElementById("media-content-type").value;
     const channelLink  = document.getElementById("media-channel-link").value.trim();
     const followerCount = document.getElementById("media-follower-count").value.trim();
-    const sampleVideos = document.getElementById("media-sample-videos").value.trim();
     const whyMedia     = document.getElementById("media-why").value.trim();
 
-    if (!ign || !region || !contentType || !channelLink || !followerCount || !sampleVideos || !whyMedia) {
+    if (!ign || !region || !contentType || !channelLink || !followerCount || !whyMedia) {
       errEl.textContent = "Please fill in all fields.";
       errEl.style.display = "";
       return;
@@ -154,7 +157,7 @@ function renderMediaForm() {
         p_content_type: contentType,
         p_channel_link: channelLink,
         p_follower_count: followerCount,
-        p_sample_videos: sampleVideos,
+        p_sample_videos: "",
         p_why_media: whyMedia,
       });
       if (error) throw error;
@@ -171,6 +174,10 @@ function renderMediaForm() {
 
 function renderMediaSubmitted() {
   const container = document.getElementById("leaderboard");
+  container.style.overflow = "visible";
+  container.style.background = "none";
+  container.style.border = "none";
+  container.style.borderRadius = "0";
   container.innerHTML = `
     <div class="media-page media-submitted">
       <div class="media-submitted-icon">✅</div>

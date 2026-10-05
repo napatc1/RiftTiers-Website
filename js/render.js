@@ -410,6 +410,7 @@ const PAGE_PATH_NAMES = {
   testers: "Testers",
   testing: "Testing",
   support: "Support",
+  media: "Media",
   verify: "Verify",
 };
 
@@ -446,6 +447,15 @@ function setPage(page, opts) {
 
   const filterNav = document.getElementById("filter-nav");
   filterNav.style.display = page === "leaderboard" ? "flex" : "none";
+
+  // Reset leaderboard container styles that media page overrides
+  if (page !== "media") {
+    const lb = document.getElementById("leaderboard");
+    lb.style.overflow = "";
+    lb.style.background = "";
+    lb.style.border = "";
+    lb.style.borderRadius = "";
+  }
 
   if (page === "home") {
     renderHome();
