@@ -498,17 +498,44 @@ function testRowHtml(testeeName, gamemode, tier, testerNames) {
   `;
 }
 
-function renderHome() {
+function relativeTime(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 2) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  return `${months}mo ago`;
+}
+
+function announcementTagClass(tag) {
+  const map = { Launch: "tag-launch", Feature: "tag-feature", Update: "tag-update", Fix: "tag-fix" };
+  return map[tag] || "tag-update";
+}
+
+async function renderHome() {
   const title = document.getElementById("view-title");
   title.textContent = "Home";
   title.classList.remove("profile-mode");
 
   const container = document.getElementById("leaderboard");
+
+  // Fetch announcements (non-blocking — render skeleton first)
   container.innerHTML = `
     <div class="home-overview">
       <section class="home-section home-hero">
         <h2 class="home-hero-title">Welcome to <span class="home-hero-accent">RyftTiers</span></h2>
         <p class="home-hero-sub">Skill-based tier rankings for Minecraft PvP — tested by real staff, updated live.</p>
+      </section>
+
+      <section class="home-section home-news-section">
+        <h3>News &amp; Updates</h3>
+        <div class="home-news-list" id="home-news-list">
+          <p class="empty-state">Loading…</p>
+        </div>
       </section>
 
       <section class="home-section">
@@ -545,6 +572,37 @@ function renderHome() {
       </section>
     </div>
   `;
+
+  // Now load announcements and fill the news list
+  try {
+    const { data, error } = await sb
+      .from("announcements")
+      .select("id, title, body, tag, created_at")
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    const newsList = document.getElementById("home-news-list");
+    if (!newsList) return; // user navigated away
+
+    if (error || !data || data.length === 0) {
+      newsList.innerHTML = `<p class="empty-state">No announcements yet.</p>`;
+      return;
+    }
+
+    newsList.innerHTML = data.map(a => `
+      <div class="news-card">
+        <div class="news-card-header">
+          <span class="news-tag ${announcementTagClass(a.tag)}">${escapeHtml(a.tag)}</span>
+          <span class="news-time">${relativeTime(a.created_at)}</span>
+        </div>
+        <div class="news-card-title">${escapeHtml(a.title)}</div>
+        <div class="news-card-body">${escapeHtml(a.body)}</div>
+      </div>
+    `).join("");
+  } catch (err) {
+    const newsList = document.getElementById("home-news-list");
+    if (newsList) newsList.innerHTML = `<p class="empty-state">Couldn't load announcements.</p>`;
+  }
 }
 
 // Small fixed widget in the bottom-left showing tests happening right now.
