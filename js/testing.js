@@ -41,7 +41,7 @@ async function fetchQueueData(gamemode, region) {
   return {
     entries: entries || [],
     testers: testers || [],
-    closed: closedRow ? closedRow.closed : false,
+    closed: closedRow ? closedRow.closed : true,
     locked: closedRow ? closedRow.locked : false,
   };
 }
