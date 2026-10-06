@@ -1381,164 +1381,180 @@ td:last-child {
   border-color: var(--accent);
 }
 
-/* ── Media page ──────────────────────────────── */
-.media-page {
+/* ── Applications page ───────────────────────── */
+.apps-page {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  max-width: 640px;
+  max-width: 700px;
   margin: 0 auto;
-  padding-bottom: 40px;
+  padding-bottom: 48px;
 }
 
-.media-hero {
+.apps-hero {
   text-align: center;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 36px 24px 28px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
+  padding: 8px 0 4px;
 }
 
-.media-hero-icon {
-  font-size: 2.4rem;
-  line-height: 1;
-}
-
-.media-hero-title {
-  margin: 0;
+.apps-hero-title {
+  margin: 0 0 8px;
   font-size: 1.75rem;
   font-weight: 800;
 }
 
-.media-hero-sub {
+.apps-hero-sub {
   margin: 0;
   font-size: 0.9rem;
   color: var(--text-dim);
   line-height: 1.6;
-  max-width: 480px;
+  max-width: 500px;
+  margin-inline: auto;
 }
 
-.media-apply-btn {
-  margin-top: 6px;
-  padding: 10px 28px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.15s;
-}
-.media-apply-btn:hover { opacity: 0.85; }
-.media-apply-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.media-apply-btn-outline {
-  background: transparent;
-  border: 1px solid var(--accent);
-  color: var(--accent);
-}
-.media-apply-btn-outline:hover { background: var(--accent-dim); opacity: 1; }
-
-.media-info-grid {
+/* Three-column card grid */
+.apps-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 14px;
 }
 
-@media (max-width: 540px) {
-  .media-info-grid { grid-template-columns: 1fr; }
+@media (max-width: 600px) {
+  .apps-cards { grid-template-columns: 1fr; }
 }
 
-.media-info-card {
+.apps-card {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
-.media-info-icon { font-size: 1.4rem; }
+.apps-card-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
 
-.media-info-title {
-  font-size: 0.88rem;
+.apps-card-title {
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text);
 }
 
-.media-info-body {
-  font-size: 0.8rem;
+.apps-card-desc {
+  margin: 0;
+  font-size: 0.82rem;
   color: var(--text-dim);
   line-height: 1.5;
 }
 
-.media-reqs {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 18px 20px;
-}
-
-.media-reqs h3 {
-  margin: 0 0 10px;
-  font-size: 0.95rem;
-  font-weight: 700;
-}
-
-.media-reqs ul {
-  margin: 0 0 10px;
-  padding-left: 18px;
+.apps-card-perks {
+  margin: 2px 0 4px;
+  padding-left: 16px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 3px;
+  flex: 1;
 }
 
-.media-reqs ul li {
-  font-size: 0.85rem;
+.apps-card-perks li {
+  font-size: 0.8rem;
   color: var(--text-dim);
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
-.media-reqs-note {
+/* Apply button — color driven by CSS var set inline */
+.apps-apply-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 20px;
+  background: var(--app-color, var(--accent));
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: "Lexend", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  align-self: flex-start;
+}
+.apps-apply-btn:hover { opacity: 0.82; }
+.apps-apply-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.apps-note {
   margin: 0;
+  text-align: center;
   font-size: 0.8rem;
   color: var(--text-dim);
   font-style: italic;
 }
 
-.media-form-heading {
+/* Form view */
+.apps-form-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.apps-form-icon { font-size: 1.6rem; line-height: 1; }
+
+.apps-form-heading {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
 }
 
-.media-form {
+/* Profile pill — shows IGN + region pulled from account */
+.apps-profile-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 14px 6px 8px;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  align-self: flex-start;
+}
+
+.apps-profile-head {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  image-rendering: pixelated;
+}
+
+.apps-profile-pill strong { color: var(--text); }
+
+.apps-form {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.media-form .media-apply-btn {
-  margin-top: 10px;
+.apps-submit-btn {
+  margin-top: 8px;
   align-self: flex-start;
+  padding: 10px 28px;
+  font-size: 0.9rem;
 }
 
-.media-submitted {
+/* Submitted state */
+.apps-submitted {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   text-align: center;
-  padding-top: 40px;
+  gap: 14px;
+  padding: 48px 0 24px;
 }
 
-.media-submitted-icon {
-  font-size: 3rem;
-  line-height: 1;
-}
+.apps-submitted-icon { font-size: 3rem; line-height: 1; }
 
 .home-section h3 {
   margin: 0 0 10px;

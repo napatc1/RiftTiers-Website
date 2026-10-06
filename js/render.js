@@ -410,7 +410,7 @@ const PAGE_PATH_NAMES = {
   testers: "Testers",
   testing: "Testing",
   support: "Support",
-  media: "Media",
+  applications: "Applications",
   verify: "Verify",
 };
 
@@ -448,8 +448,8 @@ function setPage(page, opts) {
   const filterNav = document.getElementById("filter-nav");
   filterNav.style.display = page === "leaderboard" ? "flex" : "none";
 
-  // Reset leaderboard container styles that media page overrides
-  if (page !== "media") {
+  // Reset leaderboard container styles that applications page overrides
+  if (page !== "applications") {
     const lb = document.getElementById("leaderboard");
     lb.style.overflow = "";
     lb.style.background = "";
@@ -465,8 +465,8 @@ function setPage(page, opts) {
     renderTestingTab();
   } else if (page === "support") {
     renderSupportTab();
-  } else if (page === "media") {
-    renderMediaTab();
+  } else if (page === "applications") {
+    renderApplicationsTab();
   } else if (page === "verify") {
     renderVerifyTab();
   } else if (page === "settings") {
