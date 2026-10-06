@@ -1,7 +1,7 @@
-// The "Testing" page: Queues + Tests + Results subtabs, backed live by Supabase.
+// The "Testing" page: Queues + Tests + Results + High Test subtabs, backed live by Supabase.
 const DISCORD_GUILD_ID = "1555512928365576244"; // RyftTiers server ID
 
-let testingSubtab = "queues"; // "queues" | "tests" | "results"
+let testingSubtab = "queues"; // "queues" | "tests" | "results" | "hightest"
 let testingGamemode = "vanilla";
 let testingRegion = null; // the region tab currently being viewed
 let testingChannel = null;
@@ -75,6 +75,7 @@ function renderTestingTab() {
         <button type="button" class="testing-subtab-btn ${testingSubtab === "queues" ? "active" : ""}" data-subtab="queues">Queues</button>
         <button type="button" class="testing-subtab-btn ${testingSubtab === "tests" ? "active" : ""}" data-subtab="tests">Tests</button>
         <button type="button" class="testing-subtab-btn ${testingSubtab === "results" ? "active" : ""}" data-subtab="results">Results</button>
+        <button type="button" class="testing-subtab-btn ${testingSubtab === "hightest" ? "active" : ""}" data-subtab="hightest">High Test</button>
       </div>
       <div id="testing-subtab-content"></div>
     </div>
@@ -94,6 +95,8 @@ function renderTestingTab() {
     renderQueuesSubtab();
   } else if (testingSubtab === "tests") {
     renderTestsSubtab();
+  } else if (testingSubtab === "hightest") {
+    renderHighTestSubtab();
   } else {
     renderResultsSubtab();
   }
@@ -541,6 +544,79 @@ async function renderResultsSubtab() {
       renderResultsSubtab();
     };
   });
+}
+
+function renderHighTestSubtab() {
+  const el = document.getElementById("testing-subtab-content");
+  if (!el) return;
+
+  if (!currentProfile) {
+    el.innerHTML = `<p class="empty-state">Login with Discord to request a high tier test.</p>`;
+    return;
+  }
+  if (!currentProfile.username) {
+    el.innerHTML = `<p class="empty-state">Verify your Minecraft account first (Verify tab).</p>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="apps-page">
+      <h3 class="apps-form-heading" style="margin-bottom:8px">Request High Tier Test</h3>
+      <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.9em">
+        For players who are <strong>LT3 or better</strong>. Staff will set up your test from the ticket.
+      </p>
+      <div class="apps-profile-pill">
+        <img src="${headUrl(currentProfile.username, 20)}" alt="" class="apps-profile-head" />
+        <span><strong>${escapeHtml(currentProfile.username)}</strong>${currentProfile.region ? ` &bull; ${currentProfile.region}` : ""}</span>
+      </div>
+      <form id="hightest-form" class="apps-form" autocomplete="off">
+        <label class="support-form-label" for="hightest-gamemode">Gamemode</label>
+        <select id="hightest-gamemode" class="support-form-select" required>
+          <option value="" disabled selected>Select a gamemode</option>
+          ${GAMEMODES.map((gm) => `<option value="${gm.id}">${gm.label}</option>`).join("")}
+        </select>
+        <p id="hightest-error" class="settings-feedback error" style="display:none"></p>
+        <button type="submit" class="apps-apply-btn apps-submit-btn" id="hightest-submit-btn" style="--app-color:var(--accent)">Request High Test</button>
+      </form>
+    </div>
+  `;
+
+  document.getElementById("hightest-form").onsubmit = async (ev) => {
+    ev.preventDefault();
+    const gamemodeId = document.getElementById("hightest-gamemode").value;
+    if (!gamemodeId) return;
+    const errEl = document.getElementById("hightest-error");
+    const btn = document.getElementById("hightest-submit-btn");
+    errEl.style.display = "none";
+    btn.disabled = true;
+    btn.textContent = "Submitting…";
+    try {
+      const gm = GAMEMODES.find((g) => g.id === gamemodeId);
+      const gmName = gm ? gm.label : gamemodeId;
+      const { error } = await sb.rpc("create_support_ticket", {
+        p_category: "hightest",
+        p_subject: gmName,
+        p_message: `High tier test request for ${gmName}. IGN: ${currentProfile.username}${currentProfile.region ? `, Region: ${currentProfile.region}` : ""}.`,
+      });
+      if (error) throw error;
+      el.innerHTML = `
+        <div class="apps-page">
+          <div class="apps-submitted">
+            <div class="apps-submitted-icon">✅</div>
+            <h3 class="apps-form-heading">Request Submitted!</h3>
+            <p class="apps-hero-sub">Staff will review your high tier test request and set up a ticket shortly.</p>
+            <button type="button" class="apps-apply-btn" id="hightest-back-btn" style="--app-color:var(--accent)">Back</button>
+          </div>
+        </div>
+      `;
+      document.getElementById("hightest-back-btn").onclick = renderHighTestSubtab;
+    } catch (err) {
+      errEl.textContent = err.message || "Couldn't submit. Try again or contact staff.";
+      errEl.style.display = "";
+      btn.disabled = false;
+      btn.textContent = "Request High Test";
+    }
+  };
 }
 
 function subscribeQueueRealtime() {
