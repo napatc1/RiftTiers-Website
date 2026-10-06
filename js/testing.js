@@ -546,7 +546,7 @@ async function renderResultsSubtab() {
   });
 }
 
-function renderHighTestSubtab() {
+async function renderHighTestSubtab() {
   const el = document.getElementById("testing-subtab-content");
   if (!el) return;
 
@@ -556,6 +556,21 @@ function renderHighTestSubtab() {
   }
   if (!currentProfile.username) {
     el.innerHTML = `<p class="empty-state">Verify your Minecraft account first (Verify tab).</p>`;
+    return;
+  }
+
+  el.innerHTML = `<p class="empty-state">Loading...</p>`;
+
+  const LT3_OR_BETTER = ["HT1", "LT1", "HT2", "LT2", "HT3", "LT3"];
+  const { data: qualifyingTiers } = await sb
+    .from("player_tiers")
+    .select("tier")
+    .eq("player_id", currentProfile.playerId)
+    .in("tier", LT3_OR_BETTER)
+    .limit(1);
+
+  if (!qualifyingTiers || qualifyingTiers.length === 0) {
+    el.innerHTML = `<p class="empty-state">You need to be <strong>LT3 or better</strong> in at least one gamemode to request a high tier test.</p>`;
     return;
   }
 
