@@ -477,6 +477,10 @@ function setPage(page, opts) {
 
   renderLiveNowWidget();
   renderRecentTestsWidget();
+
+  // hide the "TESTS" tab button on the home page (nothing to show there)
+  const sideTab = document.getElementById("side-panel-tab");
+  if (sideTab) sideTab.classList.toggle("hidden", page === "home");
 }
 
 // One row of a "who tested who" list: testee head+name, gamemode icon,
@@ -764,7 +768,7 @@ function liveNowRowHtml(entry) {
 
 function renderLiveNowWidget() {
   const widget = document.getElementById("live-now-widget");
-  if (currentPage !== "home") {
+  if (currentPage === "home") {
     widget.innerHTML = "";
     widget.classList.remove("visible");
     return;
@@ -788,7 +792,7 @@ function renderLiveNowWidget() {
 // Bottom-left widget showing every completed test from the last 48 hours.
 function renderRecentTestsWidget() {
   const widget = document.getElementById("recent-tests-widget");
-  if (currentPage !== "home") {
+  if (currentPage === "home") {
     widget.innerHTML = "";
     widget.classList.remove("visible");
     return;
