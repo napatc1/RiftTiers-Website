@@ -312,12 +312,17 @@ nav {
   top: calc(100% + 8px);
   left: 0;
   min-width: 160px;
-  background: #14171c;
+  background: var(--input-bg);
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 6px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
   z-index: 50;
+}
+
+:root:not([data-theme]) .custom-select-menu,
+:root[data-theme="system"] .custom-select-menu {
+  background: #14171c;
 }
 
 .custom-select.open .custom-select-menu {
@@ -401,7 +406,7 @@ nav {
 }
 
 #search-input::placeholder {
-  color: #5c6066;
+  color: var(--text-dim);
 }
 
 /* ---------- main / leaderboard ---------- */
@@ -497,7 +502,7 @@ table.with-tiers th:nth-child(5) { width: 40%; }
   width: 26px;
   height: 26px;
   border-radius: 999px;
-  background: #1c2128;
+  background: var(--input-bg);
   border: 1px solid var(--line);
   display: inline-flex;
   align-items: center;
@@ -526,7 +531,7 @@ th {
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: #5c6066;
+  color: var(--text-dim);
 }
 
 th:first-child { padding-left: 18px; width: 50px; }
@@ -543,7 +548,7 @@ td:nth-child(3), td:nth-child(4) {
 td:first-child {
   font-family: "JetBrains Mono", monospace;
   font-weight: 600;
-  color: #5c6066;
+  color: var(--text-dim);
   padding-left: 18px;
 }
 
@@ -745,7 +750,7 @@ td:last-child {
 .profile-tier-icon-box {
   width: 48px;
   height: 48px;
-  background: #1c2128;
+  background: var(--input-bg);
   border: 1px solid var(--line);
   border-radius: 999px;
   display: flex;
@@ -2437,7 +2442,20 @@ td:last-child {
 }
 
 .testers-search::placeholder {
-  color: #5c6066;
+  color: var(--text-dim);
+}
+
+.tester-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.tester-test-count {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-family: "JetBrains Mono", monospace;
 }
 
 /* ---------- auth widget ---------- */

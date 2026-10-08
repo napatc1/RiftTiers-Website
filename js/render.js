@@ -915,6 +915,7 @@ async function loadTesterData() {
     .map((p) => ({
       username: p.players.username,
       region: p.players.region,
+      isTester: !!p.is_tester,
       isSeniorTester: !!p.is_senior_tester,
       isManager: !!p.is_manager,
       isModerator: !!p.is_moderator,
@@ -922,12 +923,14 @@ async function loadTesterData() {
       count: counts.get(p.players.username) || 0,
     }));
 
-  testerDataLoaded = true;
+  // Only mark as loaded when we actually got data so retries happen if RLS blocks us
+  if (TESTER_PROFILES.length > 0) testerDataLoaded = true;
 }
 
 function testerRoleRank(p) {
-  if (p.isOwner) return 4;
-  if (p.isManager) return 3;
+  if (p.isOwner) return 5;
+  if (p.isManager) return 4;
+  if (p.isModerator) return 3;
   if (p.isSeniorTester) return 2;
   return 1;
 }
@@ -965,7 +968,7 @@ async function renderTesters() {
 
   const rowsHtml =
     entries.length === 0
-      ? `<tr><td colspan="4"><p class="empty-state">${testersSearchQuery ? `No testers match "${escapeHtml(testersSearchQuery)}".` : "No testers yet."}</p></td></tr>`
+      ? `<tr><td colspan="3"><p class="empty-state">${testersSearchQuery ? `No testers match "${escapeHtml(testersSearchQuery)}".` : "No testers yet."}</p></td></tr>`
       : entries
           .map(
             (p, i) => `
@@ -977,8 +980,12 @@ async function renderTesters() {
                     <span>${escapeHtml(p.username)}</span>
                   </span>
                 </td>
-                <td>${testerRoleBadge(p)}</td>
-                <td>${p.count}</td>
+                <td>
+                  <div class="tester-cell">
+                    ${testerRoleBadge(p)}
+                    <span class="tester-test-count">${p.count} tests</span>
+                  </div>
+                </td>
               </tr>
             `
           )
@@ -988,7 +995,7 @@ async function renderTesters() {
     <input type="text" id="testers-search-input" placeholder="Search testers..." value="${escapeHtml(testersSearchQuery)}" class="testers-search" />
     <table>
       <thead>
-        <tr><th>#</th><th>Tester</th><th>Role</th><th>Tests</th></tr>
+        <tr><th>#</th><th>Tester</th><th>Role</th></tr>
       </thead>
       <tbody>
         ${rowsHtml}
