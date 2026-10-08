@@ -433,10 +433,11 @@ function renderProfileHtml(playerName, testerProfile) {
 
   const roleBadgeHtml = testerProfile ? `${testerRoleBadge(testerProfile)}` : "";
   const nameColor = testerProfile
-    ? testerProfile.isOwner     ? "#ffc832"
-    : testerProfile.isManager   ? "#3fa0f5"
-    : testerProfile.isSeniorTester ? "#5fd0ff"
-    : "var(--text)"
+    ? testerProfile.isOwner        ? "#e03030"
+    : testerProfile.isManager      ? "#c060f0"
+    : testerProfile.isModerator    ? "#4a90e8"
+    : testerProfile.isSeniorTester ? "#28a045"
+    : "#4dcc6e"
     : "var(--text)";
 
   return `
@@ -932,8 +933,9 @@ function testerRoleRank(p) {
 }
 
 function testerRoleBadge(p) {
-  if (p.isOwner) return `<span class="role-badge role-owner">Owner</span>`;
-  if (p.isManager) return `<span class="role-badge role-manager">Manager</span>`;
+  if (p.isOwner)       return `<span class="role-badge role-owner">Owner</span>`;
+  if (p.isManager)     return `<span class="role-badge role-manager">Manager</span>`;
+  if (p.isModerator)   return `<span class="role-badge role-moderator">Moderator</span>`;
   if (p.isSeniorTester) return `<span class="role-badge role-senior">Sr. Tester</span>`;
   return `<span class="role-badge role-tester">Tester</span>`;
 }

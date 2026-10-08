@@ -2412,10 +2412,11 @@ td:last-child {
   text-transform: uppercase;
 }
 
-.role-owner   { background: rgba(255, 200, 50,  0.18); color: #ffc832; }
-.role-manager { background: rgba(63,  160, 245, 0.18); color: var(--accent); }
-.role-senior  { background: rgba(95,  208, 255, 0.15); color: #5fd0ff; }
-.role-tester  { background: rgba(255, 255, 255, 0.08); color: var(--text-dim); }
+.role-owner     { background: rgba(180, 30,  30,  0.22); color: #e03030; }
+.role-manager   { background: rgba(160, 80,  220, 0.22); color: #c060f0; }
+.role-moderator { background: rgba(63,  130, 230, 0.22); color: #4a90e8; }
+.role-senior    { background: rgba(30,  140, 60,  0.22); color: #28a045; }
+.role-tester    { background: rgba(60,  200, 90,  0.18); color: #4dcc6e; }
 
 .testers-search {
   display: block;
