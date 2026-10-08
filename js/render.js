@@ -755,6 +755,41 @@ async function renderHome() {
         </div>
       </section>
 
+      <!-- How It Works -->
+      <section class="home-section">
+        <h3 class="home-section-heading">How It Works</h3>
+        <div class="how-it-works-steps">
+          <div class="hiw-step">
+            <div class="hiw-num">1</div>
+            <div class="hiw-body">
+              <div class="hiw-title">Verify your account</div>
+              <div class="hiw-desc">Log in with Discord, enter your Minecraft IGN and pick your region. One-time setup.</div>
+            </div>
+          </div>
+          <div class="hiw-step">
+            <div class="hiw-num">2</div>
+            <div class="hiw-body">
+              <div class="hiw-title">Request a test</div>
+              <div class="hiw-desc">Hit <strong>Request Test</strong> in the Testing tab or in your region's Discord channel. Choose a gamemode — you're now in the queue.</div>
+            </div>
+          </div>
+          <div class="hiw-step">
+            <div class="hiw-num">3</div>
+            <div class="hiw-body">
+              <div class="hiw-title">Fight a tester</div>
+              <div class="hiw-desc">A tester accepts your test and you get a DM. Log on, play the evaluation rounds, and let the tester judge fairly.</div>
+            </div>
+          </div>
+          <div class="hiw-step">
+            <div class="hiw-num">4</div>
+            <div class="hiw-body">
+              <div class="hiw-title">Get your tier</div>
+              <div class="hiw-desc">Your tier is posted to #results and updates live here. Tiers range from <strong>LT5</strong> (entry) to <strong>HT1</strong> (top). Disagree? Open a support ticket.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Announcements -->
       <section class="home-section home-news-section">
         <h3 class="home-section-heading">News &amp; Updates</h3>

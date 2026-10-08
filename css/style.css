@@ -2133,6 +2133,58 @@ td:last-child {
 }
 
 /* News / announcements */
+/* ---------- how it works ---------- */
+
+.how-it-works-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hiw-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.hiw-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hiw-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.hiw-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.hiw-desc {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
 .home-news-list {
   display: flex;
   flex-direction: column;
