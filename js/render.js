@@ -234,6 +234,15 @@ async function openProfileOverlay(playerName) {
     (p) => p.username.toLowerCase() === playerName.toLowerCase()
   );
   content.innerHTML = renderProfileHtml(playerName, testerProfile || null);
+  // Touch tooltip support for tier icons
+  content.querySelectorAll(".profile-tier-item[data-tooltip]").forEach((el) => {
+    el.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      document.querySelectorAll(".profile-tier-item.tooltip-active").forEach((o) => o.classList.remove("tooltip-active"));
+      el.classList.add("tooltip-active");
+      setTimeout(() => el.classList.remove("tooltip-active"), 2000);
+    }, { passive: false });
+  });
 }
 
 function closeProfileOverlay() {
@@ -386,12 +395,17 @@ function renderProfileHtml(playerName, testerProfile) {
   const tierIcons = GAMEMODES.filter((gm) => player.tiers[gm.id])
     .map((gm) => {
       const tier = player.tiers[gm.id];
+      const color = tierColor(tier);
+      // Build a semi-transparent version of the color for the glow
+      const glowColor = color.startsWith("#") && color.length === 7
+        ? color + "66"  // 40% alpha
+        : color;
       return `
-        <div class="profile-tier-item" title="${gm.label}">
-          <div class="profile-tier-icon-box">
+        <div class="profile-tier-item" data-tooltip="${escapeHtml(gm.label)} ${tier}">
+          <div class="profile-tier-icon-box" style="--tier-glow:${glowColor}">
             ${gm.icon ? `<img src="${gm.icon}" alt="${gm.label}" class="gamemode-icon" />` : ""}
           </div>
-          <span class="profile-tier-label" style="color:${tierColor(tier)}">${tier}</span>
+          <span class="profile-tier-label" style="color:${color}">${tier}</span>
         </div>
       `;
     })
@@ -418,12 +432,18 @@ function renderProfileHtml(playerName, testerProfile) {
     : `<p class="empty-state" style="padding:0;font-size:0.82rem">No recent tests.</p>`;
 
   const roleBadgeHtml = testerProfile ? `${testerRoleBadge(testerProfile)}` : "";
+  const nameColor = testerProfile
+    ? testerProfile.isOwner     ? "#ffc832"
+    : testerProfile.isManager   ? "#3fa0f5"
+    : testerProfile.isSeniorTester ? "#5fd0ff"
+    : "var(--text)"
+    : "var(--text)";
 
   return `
     <div class="po-head-row">
       <img src="${headUrl(player.name, 80)}" alt="" class="po-head" />
       <div class="po-head-info">
-        <div class="po-name">${escapeHtml(player.name)}</div>
+        <div class="po-name" style="color:${nameColor}">${escapeHtml(player.name)}</div>
         <div class="po-meta">
           <span class="po-region">${player.region}</span>
           <span class="po-score">${score} overall</span>
@@ -878,7 +898,7 @@ async function loadTesterData() {
   const [{ data: profiles }, { data: logs }] = await Promise.all([
     sb.from("profiles")
       .select("is_tester, is_senior_tester, is_manager, is_moderator, is_owner, players(username, region)")
-      .eq("is_tester", true),
+      .or("is_tester.eq.true,is_senior_tester.eq.true,is_manager.eq.true,is_moderator.eq.true,is_owner.eq.true"),
     sb.from("test_log").select("tester_names"),
   ]);
 

@@ -713,22 +713,51 @@ td:last-child {
   flex-direction: column;
   align-items: center;
   gap: 7px;
+  position: relative;
+  cursor: default;
+}
+
+.profile-tier-item::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10,12,20,0.96);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  border: 1px solid rgba(255,255,255,0.1);
+  z-index: 10;
+}
+
+.profile-tier-item:hover::after,
+.profile-tier-item.tooltip-active::after {
+  opacity: 1;
 }
 
 .profile-tier-icon-box {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   background: #1c2128;
   border: 1px solid var(--line);
   border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 0 12px 3px var(--tier-glow, transparent), 0 0 24px 6px var(--tier-glow, transparent);
+  transition: box-shadow 0.2s;
 }
 
 .profile-tier-icon-box .gamemode-icon {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
 }
 
 .profile-tier-label {
