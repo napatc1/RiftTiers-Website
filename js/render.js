@@ -562,9 +562,8 @@ async function renderHome() {
     });
   });
 
-  // HT3+ results from RESULTS_LOG (HT1, HT2, HT3 only)
-  const htTiers = new Set(["HT1", "HT2", "HT3"]);
-  const highResults = RESULTS_LOG.filter((r) => htTiers.has(r.tier)).slice(0, 8);
+  // All recent results
+  const highResults = RESULTS_LOG.slice(0, 12);
 
   // --- Build gamemode cards HTML ---
   const gamemodeCardsHtml = GAMEMODES.map((gm) => {
@@ -597,19 +596,20 @@ async function renderHome() {
         `;
       }).join("");
 
-  // --- High tier results HTML ---
+  // --- All recent results HTML ---
   const highResultsHtml = highResults.length === 0
-    ? `<p class="empty-state">No HT3+ results to show yet.</p>`
+    ? `<p class="empty-state">No results yet.</p>`
     : highResults.map((r) => {
         const gm = GAMEMODES.find((g) => g.id === r.gamemode) || { label: r.gamemode };
+        const tc = tierColor(r.tier);
         return `
-          <div class="home-ht-row">
-            <img src="${headUrl(r.testeeName, 28)}" alt="" class="home-ht-head" />
+          <div class="home-ht-row" style="border-left-color:${tc}">
+            <img src="${headUrl(r.testeeName, 32)}" alt="" class="home-ht-head" />
             <div class="home-ht-info">
               <span class="home-ht-name">${escapeHtml(r.testeeName)}</span>
               <span class="home-ht-gm">${escapeHtml(gm.label)}</span>
             </div>
-            <span class="home-ht-tier" style="color:${tierColor(r.tier)}">${escapeHtml(r.tier)}</span>
+            <span class="home-ht-tier" style="background:${tc}20;color:${tc};border:1px solid ${tc}50">${escapeHtml(r.tier)}</span>
             <span class="home-ht-time">${relativeTime(r.timestamp)}</span>
           </div>
         `;
@@ -656,11 +656,11 @@ async function renderHome() {
         </div>
       </section>
 
-      <!-- High Tier Results -->
+      <!-- Recent Results -->
       <section class="home-section">
         <h3 class="home-section-heading">
-          High Tier Results
-          <span class="home-section-badge">HT3+</span>
+          Recent Results
+          <span class="home-section-badge">Live</span>
         </h3>
         <div class="home-ht-list">
           ${highResultsHtml}
