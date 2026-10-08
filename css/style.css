@@ -2460,11 +2460,33 @@ td:last-child {
   color: var(--text-dim);
 }
 
-.tester-cell {
+.tester-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tester-info {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 4px;
+  min-width: 0;
+}
+
+.tester-username {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tester-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .tester-test-count {

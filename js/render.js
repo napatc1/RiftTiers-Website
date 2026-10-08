@@ -968,22 +968,22 @@ async function renderTesters() {
 
   const rowsHtml =
     entries.length === 0
-      ? `<tr><td colspan="3"><p class="empty-state">${testersSearchQuery ? `No testers match "${escapeHtml(testersSearchQuery)}".` : "No testers yet."}</p></td></tr>`
+      ? `<tr><td colspan="2"><p class="empty-state">${testersSearchQuery ? `No testers match "${escapeHtml(testersSearchQuery)}".` : "No testers yet."}</p></td></tr>`
       : entries
           .map(
             (p, i) => `
               <tr class="${i < 3 ? `rank-${i + 1}` : ""}">
                 <td>${i + 1}</td>
                 <td>
-                  <span class="player-link">
+                  <div class="tester-name-row">
                     <img src="${headUrl(p.username, 24)}" alt="" class="player-head" loading="lazy" />
-                    <span>${escapeHtml(p.username)}</span>
-                  </span>
-                </td>
-                <td>
-                  <div class="tester-cell">
-                    ${testerRoleBadge(p)}
-                    <span class="tester-test-count">${p.count} tests</span>
+                    <div class="tester-info">
+                      <span class="tester-username">${escapeHtml(p.username)}</span>
+                      <div class="tester-meta">
+                        ${testerRoleBadge(p)}
+                        <span class="tester-test-count">${p.count} tests</span>
+                      </div>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -995,7 +995,7 @@ async function renderTesters() {
     <input type="text" id="testers-search-input" placeholder="Search testers..." value="${escapeHtml(testersSearchQuery)}" class="testers-search" />
     <table>
       <thead>
-        <tr><th>#</th><th>Tester</th><th>Role</th></tr>
+        <tr><th>#</th><th>Tester</th></tr>
       </thead>
       <tbody>
         ${rowsHtml}
