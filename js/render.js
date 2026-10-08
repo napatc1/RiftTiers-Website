@@ -631,9 +631,19 @@ async function renderHome() {
             discord.gg/ph7HykudFx
           </a>
         </div>
-        <div class="home-hero-stat">
-          <span class="home-hero-stat-label">Listed Players</span>
-          <span class="home-hero-stat-value">${totalPlayers.toLocaleString()}</span>
+        <div class="home-hero-stats-row">
+          <div class="home-hero-stat">
+            <span class="home-hero-stat-value">${totalPlayers.toLocaleString()}</span>
+            <span class="home-hero-stat-label">Players Ranked</span>
+          </div>
+          <div class="home-hero-stat">
+            <span class="home-hero-stat-value home-hero-stat-value--green">${activeTesters.length}</span>
+            <span class="home-hero-stat-label">Live Tests</span>
+          </div>
+          <div class="home-hero-stat">
+            <span class="home-hero-stat-value home-hero-stat-value--blue">${GAMEMODES.length}</span>
+            <span class="home-hero-stat-label">Gamemodes</span>
+          </div>
         </div>
       </section>
 
