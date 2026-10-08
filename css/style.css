@@ -870,18 +870,38 @@ td:last-child {
 .nav-hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
 .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
+/* only rendered on mobile — hidden on desktop */
+@media (min-width: 681px) {
+  .nav-drawer { display: none !important; }
+}
+
 .nav-drawer {
-  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 300;
   flex-direction: column;
   gap: 4px;
-  overflow: hidden;
-  max-height: 0;
-  transition: max-height 0.3s ease, padding 0.2s ease;
-  padding: 0 0;
+  padding: 10px 14px 16px;
+  background: var(--panel);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  overflow-y: auto;
+  max-height: calc(100vh - 64px);
+  /* hidden by default */
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  display: flex;
 }
 .nav-drawer.open {
-  max-height: 400px;
-  padding: 8px 0 4px;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 .nav-drawer .page-tab {
   width: 100%;
@@ -1486,9 +1506,7 @@ td:last-child {
     display: flex;
   }
 
-  .nav-drawer {
-    display: flex;
-  }
+  /* drawer is always display:flex (hidden via opacity); no override needed */
 
   .header-top {
     margin-bottom: 0;
