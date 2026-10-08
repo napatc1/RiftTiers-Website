@@ -70,24 +70,30 @@ function editMyProfile() {
 
 function renderAuthUI() {
   const el = document.getElementById("auth-widget");
-  if (!el) return;
+  const mob = document.getElementById("auth-widget-mobile");
 
-  if (currentSession && currentProfile) {
-    el.innerHTML = `
-      <button type="button" id="edit-profile-btn" class="auth-username-btn">
-        <img src="${headUrl(currentProfile.username || "Player", 20)}" alt="" class="auth-username-head" />
-        ${escapeHtml(currentProfile.username || "Player")}
-      </button>
-      <button type="button" id="logout-btn" class="auth-btn">Logout</button>
-    `;
-    document.getElementById("edit-profile-btn").onclick = editMyProfile;
-    document.getElementById("logout-btn").onclick = logoutOfDiscord;
-  } else if (currentSession) {
-    el.innerHTML = `<span class="auth-username-btn">Loading...</span>`;
-  } else {
-    el.innerHTML = `<button type="button" id="login-btn" class="auth-btn auth-btn-primary">Login with Discord</button>`;
-    document.getElementById("login-btn").onclick = loginWithDiscord;
+  function fill(container, idSuffix) {
+    if (!container) return;
+    if (currentSession && currentProfile) {
+      container.innerHTML = `
+        <button type="button" id="edit-profile-btn${idSuffix}" class="auth-username-btn">
+          <img src="${headUrl(currentProfile.username || "Player", 20)}" alt="" class="auth-username-head" />
+          ${escapeHtml(currentProfile.username || "Player")}
+        </button>
+        <button type="button" id="logout-btn${idSuffix}" class="auth-btn">Logout</button>
+      `;
+      document.getElementById("edit-profile-btn" + idSuffix).onclick = editMyProfile;
+      document.getElementById("logout-btn" + idSuffix).onclick = logoutOfDiscord;
+    } else if (currentSession) {
+      container.innerHTML = `<span class="auth-username-btn">Loading...</span>`;
+    } else {
+      container.innerHTML = `<button type="button" id="login-btn${idSuffix}" class="auth-btn auth-btn-primary">Login with Discord</button>`;
+      document.getElementById("login-btn" + idSuffix).onclick = loginWithDiscord;
+    }
   }
+
+  fill(el, "");
+  fill(mob, "-mob");
 }
 
 sb.auth.onAuthStateChange(async (_event, session) => {

@@ -753,23 +753,21 @@ td:last-child {
 
 @media (max-width: 680px) {
   header {
-    padding: 14px 16px;
+    padding: 12px 14px;
   }
 
   .header-top {
-    margin-bottom: 10px;
+    margin-bottom: 0;
   }
 
   header h1 {
     font-size: 1.15rem;
   }
 
-  .discord-btn span {
-    display: none;
-  }
-
+  /* hide auth + discord from header on mobile — they live in the drawer */
+  .auth-widget,
   .discord-btn {
-    padding: 8px;
+    display: none !important;
   }
 
   nav {
@@ -901,6 +899,66 @@ td:last-child {
   background: var(--accent-dim);
   color: var(--accent);
   border-bottom: none;
+}
+
+.nav-drawer-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 6px 0;
+}
+
+.nav-drawer-discord {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  color: #8fa0ff;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: rgba(88,101,242,0.08);
+  border: 1px solid rgba(88,101,242,0.2);
+  transition: background 0.15s;
+}
+.nav-drawer-discord:hover { background: rgba(88,101,242,0.15); }
+
+.nav-drawer-auth {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 0;
+}
+.nav-drawer-auth .auth-username-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+}
+.nav-drawer-auth .auth-btn {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  width: 100%;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-dim);
+}
+.nav-drawer-auth .auth-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: transparent;
 }
 
 /* ---------- page tabs (Home / Leaderboard / Testers) ---------- */
@@ -1349,8 +1407,17 @@ td:last-child {
     max-width: 100%;
   }
 
+  .home-hero-stat {
+    padding: 12px 6px;
+  }
+
   .home-hero-stat-value {
     font-size: 1.4rem;
+  }
+
+  .home-hero-stat-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
   }
 
   .home-gm-grid {

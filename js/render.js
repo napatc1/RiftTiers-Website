@@ -645,7 +645,7 @@ async function renderHome() {
         <div class="home-hero-stats-row">
           <div class="home-hero-stat">
             <span class="home-hero-stat-value">${totalPlayers.toLocaleString()}</span>
-            <span class="home-hero-stat-label">Players Ranked</span>
+            <span class="home-hero-stat-label">Ranked</span>
           </div>
           <div class="home-hero-stat">
             <span class="home-hero-stat-value home-hero-stat-value--green">${activeTesters.length}</span>
