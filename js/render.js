@@ -1,6 +1,8 @@
 let PLAYERS = [];
 let LIVE_TESTS = [];
 let RESULTS_LOG = [];
+let TESTER_PROFILES = [];   // [{username, region, isSeniorTester, isManager, isModerator, isOwner, count}]
+let testerDataLoaded = false;
 
 // page = "home" | "leaderboard" | "testers"
 let currentPage = "home";
@@ -828,46 +830,90 @@ function renderRecentTestsWidget() {
   `;
 }
 
-// Testers tab: aggregate the results log into a per-tester test count.
-function renderTesters() {
-  const title = document.getElementById("view-title");
-  title.textContent = "Testers";
-  title.classList.remove("profile-mode");
+async function loadTesterData() {
+  if (testerDataLoaded) return;
+  const [{ data: profiles }, { data: logs }] = await Promise.all([
+    sb.from("profiles")
+      .select("is_tester, is_senior_tester, is_manager, is_moderator, is_owner, players(username, region)")
+      .eq("is_tester", true),
+    sb.from("test_log").select("tester_names"),
+  ]);
 
-  const counts = new Map(); // testerName -> count
-  RESULTS_LOG.forEach((r) => {
-    (r.testerNames || []).forEach((name) => {
+  const counts = new Map();
+  (logs || []).forEach((r) => {
+    (r.tester_names || []).forEach((name) => {
       counts.set(name, (counts.get(name) || 0) + 1);
     });
   });
 
-  let sorted = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
-  if (testersSearchQuery) {
-    sorted = sorted.filter(([name]) => name.toLowerCase().includes(testersSearchQuery));
-  }
+  TESTER_PROFILES = (profiles || [])
+    .filter((p) => p.players)
+    .map((p) => ({
+      username: p.players.username,
+      region: p.players.region,
+      isSeniorTester: !!p.is_senior_tester,
+      isManager: !!p.is_manager,
+      isModerator: !!p.is_moderator,
+      isOwner: !!p.is_owner,
+      count: counts.get(p.players.username) || 0,
+    }));
+
+  testerDataLoaded = true;
+}
+
+function testerRoleRank(p) {
+  if (p.isOwner) return 4;
+  if (p.isManager) return 3;
+  if (p.isSeniorTester) return 2;
+  return 1;
+}
+
+function testerRoleBadge(p) {
+  if (p.isOwner) return `<span class="role-badge role-owner">Owner</span>`;
+  if (p.isManager) return `<span class="role-badge role-manager">Manager</span>`;
+  if (p.isSeniorTester) return `<span class="role-badge role-senior">Sr. Tester</span>`;
+  return `<span class="role-badge role-tester">Tester</span>`;
+}
+
+// Testers tab: all active testers with roles and full test counts.
+async function renderTesters() {
+  const title = document.getElementById("view-title");
+  title.textContent = "Testers";
+  title.classList.remove("profile-mode");
 
   const container = document.getElementById("leaderboard");
+  if (!testerDataLoaded) {
+    container.innerHTML = `<p class="empty-state">Loading...</p>`;
+  }
 
-  if (counts.size === 0) {
-    container.innerHTML = `<p class="empty-state">No completed tests logged yet.</p>`;
-    return;
+  await loadTesterData();
+
+  let entries = [...TESTER_PROFILES].sort(
+    (a, b) => b.count - a.count || testerRoleRank(b) - testerRoleRank(a)
+  );
+
+  if (testersSearchQuery) {
+    entries = entries.filter((e) =>
+      e.username.toLowerCase().includes(testersSearchQuery)
+    );
   }
 
   const rowsHtml =
-    sorted.length === 0
-      ? `<tr><td colspan="3"><p class="empty-state">No testers match "${escapeHtml(testersSearchQuery)}".</p></td></tr>`
-      : sorted
+    entries.length === 0
+      ? `<tr><td colspan="4"><p class="empty-state">${testersSearchQuery ? `No testers match "${escapeHtml(testersSearchQuery)}".` : "No testers yet."}</p></td></tr>`
+      : entries
           .map(
-            ([name, count], i) => `
+            (p, i) => `
               <tr class="${i < 3 ? `rank-${i + 1}` : ""}">
                 <td>${i + 1}</td>
                 <td>
                   <span class="player-link">
-                    <img src="${headUrl(name, 24)}" alt="" class="player-head" loading="lazy" />
-                    <span>${escapeHtml(name)}</span>
+                    <img src="${headUrl(p.username, 24)}" alt="" class="player-head" loading="lazy" />
+                    <span>${escapeHtml(p.username)}</span>
                   </span>
                 </td>
-                <td>${count}</td>
+                <td>${testerRoleBadge(p)}</td>
+                <td>${p.count}</td>
               </tr>
             `
           )
@@ -877,7 +923,7 @@ function renderTesters() {
     <input type="text" id="testers-search-input" placeholder="Search testers..." value="${escapeHtml(testersSearchQuery)}" class="testers-search" />
     <table>
       <thead>
-        <tr><th>#</th><th>Tester</th><th>Tests</th></tr>
+        <tr><th>#</th><th>Tester</th><th>Role</th><th>Tests</th></tr>
       </thead>
       <tbody>
         ${rowsHtml}

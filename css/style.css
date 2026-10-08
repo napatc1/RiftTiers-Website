@@ -2373,6 +2373,21 @@ td:last-child {
 
 /* ---------- testers tab search ---------- */
 
+.role-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.role-owner   { background: rgba(255, 200, 50,  0.18); color: #ffc832; }
+.role-manager { background: rgba(63,  160, 245, 0.18); color: var(--accent); }
+.role-senior  { background: rgba(95,  208, 255, 0.15); color: #5fd0ff; }
+.role-tester  { background: rgba(255, 255, 255, 0.08); color: var(--text-dim); }
+
 .testers-search {
   display: block;
   width: 100%;
