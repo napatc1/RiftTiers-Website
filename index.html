@@ -119,6 +119,14 @@
     <div id="recent-tests-widget" class="live-now-widget recent-tests-widget"></div>
   </div>
 
+  <div id="profile-overlay" class="profile-overlay" aria-hidden="true">
+    <div class="profile-overlay-backdrop"></div>
+    <div class="profile-overlay-panel" role="dialog" aria-modal="true">
+      <button type="button" class="profile-overlay-close" id="profile-overlay-close" aria-label="Close">&times;</button>
+      <div id="profile-overlay-content" class="profile-overlay-content"></div>
+    </div>
+  </div>
+
   <script src="js/tiers.js"></script>
   <script src="js/supabase-client.js"></script>
   <script src="js/testing.js"></script>

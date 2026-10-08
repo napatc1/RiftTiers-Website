@@ -221,14 +221,34 @@ function setView(view) {
   render();
 }
 
+function openProfileOverlay(playerName) {
+  const overlay = document.getElementById("profile-overlay");
+  const content = document.getElementById("profile-overlay-content");
+  content.innerHTML = renderProfileHtml(playerName);
+  overlay.classList.add("open");
+  overlay.setAttribute("aria-hidden", "false");
+  document.body.classList.add("overlay-open");
+}
+
+function closeProfileOverlay() {
+  const overlay = document.getElementById("profile-overlay");
+  overlay.classList.remove("open");
+  overlay.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("overlay-open");
+}
+
+function setupProfileOverlay() {
+  const overlay = document.getElementById("profile-overlay");
+  document.getElementById("profile-overlay-close").onclick = closeProfileOverlay;
+  overlay.querySelector(".profile-overlay-backdrop").onclick = closeProfileOverlay;
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && overlay.classList.contains("open")) closeProfileOverlay();
+  });
+}
+
 function render() {
   const title = document.getElementById("view-title");
   let rows, columns;
-
-  if (currentView.type === "player") {
-    renderProfile(currentView.value);
-    return;
-  }
 
   if (currentView.type === "overall") {
     title.textContent = "Overall Rankings";
@@ -333,7 +353,7 @@ function renderTable(players, columns) {
   container.appendChild(table);
 
   container.querySelectorAll(".player-link").forEach((btn) => {
-    btn.onclick = () => setView({ type: "player", value: btn.dataset.player });
+    btn.onclick = () => openProfileOverlay(btn.dataset.player);
   });
 }
 
@@ -347,19 +367,13 @@ function tierColor(tier) {
   return (isHT ? warm : cool)[rank] || "#999";
 }
 
-function renderProfile(playerName) {
+function renderProfileHtml(playerName) {
   const player = PLAYERS.find(
     (p) => p.name.toLowerCase() === playerName.toLowerCase()
   );
-  const container = document.getElementById("leaderboard");
-  const title = document.getElementById("view-title");
-  title.classList.add("profile-mode");
-  title.innerHTML = `<button id="back-btn" class="back-btn">&larr; Back</button>`;
-  document.getElementById("back-btn").onclick = () => setView(previousListView);
 
   if (!player) {
-    container.innerHTML = `<p class="empty-state">Player not found.</p>`;
-    return;
+    return `<p class="empty-state">Player not found.</p>`;
   }
 
   const score = overallScore(player);
@@ -377,27 +391,46 @@ function renderProfile(playerName) {
     })
     .join("");
 
-  container.innerHTML = `
-    <div class="profile-card">
-      <img src="${headUrl(player.name, 96)}" alt="" class="profile-head" />
-      <div class="profile-info">
-        <h2 class="profile-name">${escapeHtml(player.name)}</h2>
-        <div class="profile-meta">
-          <span class="profile-score">${score} overall</span>
+  const recentTests = RESULTS_LOG
+    .filter((r) => r.testeeName.toLowerCase() === player.name.toLowerCase())
+    .slice(0, 5);
+
+  const recentHtml = recentTests.length
+    ? recentTests.map((r) => {
+        const gm = GAMEMODES.find((g) => g.id === r.gamemode) || { label: r.gamemode };
+        const diff = Date.now() - r.timestamp;
+        const mins = Math.floor(diff / 60000);
+        const ago = mins < 2 ? "just now" : mins < 60 ? `${mins}m ago` : mins < 1440 ? `${Math.floor(mins/60)}h ago` : mins < 43200 ? `${Math.floor(mins/1440)}d ago` : `${Math.floor(mins/43200)}mo ago`;
+        return `
+          <div class="po-test-row">
+            <span class="po-test-gm">${gm.label}</span>
+            <span class="po-test-tier" style="color:${tierColor(r.tier)}">${r.tier}</span>
+            <span class="po-test-ago">${ago}</span>
+          </div>
+        `;
+      }).join("")
+    : `<p class="empty-state" style="padding:0;font-size:0.82rem">No recent tests.</p>`;
+
+  return `
+    <div class="po-head-row">
+      <img src="${headUrl(player.name, 80)}" alt="" class="po-head" />
+      <div class="po-head-info">
+        <div class="po-name">${escapeHtml(player.name)}</div>
+        <div class="po-meta">
+          <span class="po-region">${player.region}</span>
+          <span class="po-score">${score} overall</span>
         </div>
       </div>
     </div>
-    <div class="profile-details">
-      <div class="profile-detail-col">
-        <div class="detail-label">Region</div>
-        <div class="profile-region-badge">${player.region}</div>
+    <div class="po-section">
+      <div class="po-section-label">Tiers</div>
+      <div class="profile-tier-icons po-tiers">
+        ${tierIcons || `<p class="empty-state" style="padding:0;font-size:0.82rem">No tiers yet.</p>`}
       </div>
-      <div class="profile-detail-col profile-detail-col-grow">
-        <div class="detail-label">Tiers</div>
-        <div class="profile-tier-icons">
-          ${tierIcons || `<p class="empty-state">No tiers recorded yet.</p>`}
-        </div>
-      </div>
+    </div>
+    <div class="po-section">
+      <div class="po-section-label">Recent Tests</div>
+      ${recentHtml}
     </div>
   `;
 }
@@ -443,6 +476,7 @@ window.addEventListener("popstate", () => {
 function setPage(page, opts) {
   opts = opts || {};
   currentPage = page;
+  closeProfileOverlay();
   document.querySelectorAll(".page-tab").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.page === page);
   });
@@ -482,7 +516,7 @@ function setPage(page, opts) {
   } else if (page === "settings") {
     renderSettingsPage();
   } else {
-    setView(currentView.type === "player" ? previousListView : currentView);
+    setView(currentView);
   }
 
   renderLiveNowWidget();
@@ -996,6 +1030,7 @@ async function init() {
   buildNav();
   setupSidePanel();
   setupNavHamburger();
+  setupProfileOverlay();
   const urlPage = pageFromLocation();
   // Only auto-redirect to verify when the user landed at root ("/") — not
   // when they refreshed a specific page like /Testers.
