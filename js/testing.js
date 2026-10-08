@@ -664,7 +664,8 @@ function onAuthChanged() {
   updateSettingsTabVisibility();
   const nowShowingVerify = document.getElementById("verify-tab-btn")?.style.display !== "none";
   // Just logged in and not verified yet — take them straight to the form.
-  if (!wasShowingVerify && nowShowingVerify) {
+  // Only navigate if init has already run; during init, the URL-derived page wins.
+  if (!wasShowingVerify && nowShowingVerify && appInitDone) {
     setPage("verify");
   }
 

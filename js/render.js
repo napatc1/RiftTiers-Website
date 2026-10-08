@@ -4,6 +4,7 @@ let RESULTS_LOG = [];
 
 // page = "home" | "leaderboard" | "testers"
 let currentPage = "home";
+let appInitDone = false;
 
 // view = { type: "overall" } | { type: "gamemode", value: "vanilla" } | { type: "player", value: "Frostbyte" }
 // Region and tier are independent multi-select filters layered on top of
@@ -950,6 +951,7 @@ async function init() {
   setupSidePanel();
   setupNavHamburger();
   setPage(!isVerified() && currentSession ? "verify" : pageFromLocation(), { skipUrlUpdate: true });
+  appInitDone = true;
 }
 
 init();
