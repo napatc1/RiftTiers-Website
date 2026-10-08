@@ -876,7 +876,7 @@ function renderTesters() {
     <input type="text" id="testers-search-input" placeholder="Search testers..." value="${escapeHtml(testersSearchQuery)}" class="testers-search" />
     <table>
       <thead>
-        <tr><th>#</th><th>Tester</th><th>Tests Done</th></tr>
+        <tr><th>#</th><th>Tester</th><th>Tests</th></tr>
       </thead>
       <tbody>
         ${rowsHtml}
