@@ -535,53 +535,146 @@ async function renderHome() {
 
   const container = document.getElementById("leaderboard");
 
-  // Fetch announcements (non-blocking — render skeleton first)
+  // --- Derive data from already-loaded globals ---
+
+  // Gamemode player counts from PLAYERS (each player can have multiple gamemode tiers)
+  const gamemodeCounts = new Map();
+  GAMEMODES.forEach((gm) => gamemodeCounts.set(gm.id, 0));
+  PLAYERS.forEach((p) => {
+    Object.keys(p.tiers || {}).forEach((gmId) => {
+      if (gamemodeCounts.has(gmId)) {
+        gamemodeCounts.set(gmId, gamemodeCounts.get(gmId) + 1);
+      }
+    });
+  });
+
+  const totalPlayers = PLAYERS.length;
+
+  // Active testers section from LIVE_TESTS
+  const activeTesters = [];
+  const seenTesters = new Set();
+  LIVE_TESTS.forEach((t) => {
+    (t.testerNames || []).forEach((name) => {
+      if (!seenTesters.has(name)) {
+        seenTesters.add(name);
+        activeTesters.push({ name, gamemode: t.gamemode, testeeName: t.testeeName });
+      }
+    });
+  });
+
+  // HT3+ results from RESULTS_LOG (HT1, HT2, HT3 only)
+  const htTiers = new Set(["HT1", "HT2", "HT3"]);
+  const highResults = RESULTS_LOG.filter((r) => htTiers.has(r.tier)).slice(0, 8);
+
+  // --- Build gamemode cards HTML ---
+  const gamemodeCardsHtml = GAMEMODES.map((gm) => {
+    const count = gamemodeCounts.get(gm.id) || 0;
+    return `
+      <div class="home-gm-card">
+        <div class="home-gm-icon-wrap">
+          ${gm.icon ? `<img src="${gm.icon}" alt="${escapeHtml(gm.label)}" class="home-gm-icon" />` : `<span class="home-gm-icon-placeholder"></span>`}
+        </div>
+        <div class="home-gm-label">${escapeHtml(gm.label)}</div>
+        <div class="home-gm-count">${count} Ranked</div>
+      </div>
+    `;
+  }).join("");
+
+  // --- Active testers HTML ---
+  const activeTestersHtml = activeTesters.length === 0
+    ? `<p class="empty-state">No active tests right now.</p>`
+    : activeTesters.map((t) => {
+        const gm = GAMEMODES.find((g) => g.id === t.gamemode) || { label: t.gamemode };
+        return `
+          <div class="home-tester-card">
+            <img src="${headUrl(t.name, 32)}" alt="" class="home-tester-head" />
+            <div class="home-tester-info">
+              <div class="home-tester-name">${escapeHtml(t.name)}</div>
+              <div class="home-tester-meta">Testing <strong>${escapeHtml(t.testeeName)}</strong> · ${escapeHtml(gm.label)}</div>
+            </div>
+            <span class="home-tester-live-dot"></span>
+          </div>
+        `;
+      }).join("");
+
+  // --- High tier results HTML ---
+  const highResultsHtml = highResults.length === 0
+    ? `<p class="empty-state">No HT3+ results to show yet.</p>`
+    : highResults.map((r) => {
+        const gm = GAMEMODES.find((g) => g.id === r.gamemode) || { label: r.gamemode };
+        return `
+          <div class="home-ht-row">
+            <img src="${headUrl(r.testeeName, 28)}" alt="" class="home-ht-head" />
+            <div class="home-ht-info">
+              <span class="home-ht-name">${escapeHtml(r.testeeName)}</span>
+              <span class="home-ht-gm">${escapeHtml(gm.label)}</span>
+            </div>
+            <span class="home-ht-tier" style="color:${tierColor(r.tier)}">${escapeHtml(r.tier)}</span>
+            <span class="home-ht-time">${relativeTime(r.timestamp)}</span>
+          </div>
+        `;
+      }).join("");
+
+  // --- Render skeleton with live sections ---
   container.innerHTML = `
     <div class="home-overview">
-      <section class="home-section home-hero">
-        <h2 class="home-hero-title">Welcome to <span class="home-hero-accent">RyftTiers</span></h2>
+
+      <!-- Hero Card -->
+      <section class="home-hero-card">
+        <div class="home-hero-label">COMBAT LEADERBOARD</div>
+        <h1 class="home-hero-title">RyftTiers</h1>
         <p class="home-hero-sub">Skill-based tier rankings for Minecraft PvP — tested by real staff, updated live.</p>
+        <div class="home-hero-actions">
+          <button class="home-hero-cta" onclick="setPage('leaderboard')">View Rankings</button>
+          <a class="home-hero-discord" href="https://discord.gg/ph7HykudFx" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+            discord.gg/ph7HykudFx
+          </a>
+        </div>
+        <div class="home-hero-stat">
+          <span class="home-hero-stat-label">Listed Players</span>
+          <span class="home-hero-stat-value">${totalPlayers.toLocaleString()}</span>
+        </div>
       </section>
 
+      <!-- Gamemode Cards -->
+      <section class="home-section">
+        <h3 class="home-section-heading">Gamemodes</h3>
+        <div class="home-gm-grid">
+          ${gamemodeCardsHtml}
+        </div>
+      </section>
+
+      <!-- Active Testers -->
+      <section class="home-section">
+        <h3 class="home-section-heading">
+          Active Testers
+          ${activeTesters.length > 0 ? `<span class="home-section-badge home-section-badge--live">${activeTesters.length} Live</span>` : ""}
+        </h3>
+        <div class="home-testers-list">
+          ${activeTestersHtml}
+        </div>
+      </section>
+
+      <!-- High Tier Results -->
+      <section class="home-section">
+        <h3 class="home-section-heading">
+          High Tier Results
+          <span class="home-section-badge">HT3+</span>
+        </h3>
+        <div class="home-ht-list">
+          ${highResultsHtml}
+        </div>
+      </section>
+
+      <!-- Announcements -->
       <section class="home-section home-news-section">
-        <h3>News &amp; Updates</h3>
+        <h3 class="home-section-heading">News &amp; Updates</h3>
         <div class="home-news-list" id="home-news-list">
           <p class="empty-state">Loading…</p>
         </div>
       </section>
 
-      <section class="home-section">
-        <h3>How It Works</h3>
-        <ol class="home-steps">
-          <li>Link your Minecraft account on the <strong>Verify</strong> tab above.</li>
-          <li>Go to the <strong>Testing</strong> tab (or your gamemode's Discord channel) and click <strong>Join Queue</strong>.</li>
-          <li>A tester will pull you into a private ticket when it's your turn.</li>
-          <li>Play your test — the tester judges your skill live.</li>
-          <li>Your tier is submitted and shows up on the <strong>Leaderboard</strong> instantly.</li>
-        </ol>
-      </section>
-
-      <section class="home-section">
-        <h3>Rules</h3>
-        <ul class="home-rules">
-          <li>Respect testers and other players at all times.</li>
-          <li>No cheats, hacked clients, or bug exploits during a test.</li>
-          <li>Don't leave mid-test without a real reason — testers volunteer their time.</li>
-          <li>A cooldown applies after each test before you can re-queue for the same gamemode.</li>
-          <li>Tier decisions are final unless a manager reviews and overturns them.</li>
-        </ul>
-      </section>
-
-      <section class="home-section">
-        <h3>What's Where</h3>
-        <ul class="home-rules">
-          <li><strong>Leaderboard</strong> — full rankings filtered by gamemode, region, and tier.</li>
-          <li><strong>Testers</strong> — the staff doing the testing and their stats.</li>
-          <li><strong>Testing</strong> — join the queue, track your position, and chat in your test ticket.</li>
-          <li><strong>Support</strong> — open a ticket if you have an issue or question.</li>
-          <li>The bottom-left widget shows <strong>live tests</strong> happening right now and recent results.</li>
-        </ul>
-      </section>
     </div>
   `;
 
