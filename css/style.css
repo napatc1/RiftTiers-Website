@@ -485,6 +485,21 @@ table.with-tiers th:nth-child(3) { width: 12%; }
 table.with-tiers th:nth-child(4) { width: 12%; }
 table.with-tiers th:nth-child(5) { width: 40%; }
 
+@media (max-width: 520px) {
+  table       { min-width: 0; width: 100%; }
+  table.with-tiers { min-width: 0; }
+
+  /* Hide the Tiers column on small screens — accessible via profile overlay */
+  table.with-tiers th:nth-child(5),
+  table.with-tiers td:nth-child(5) { display: none; }
+
+  /* Rebalance remaining 4 columns */
+  table.with-tiers th:nth-child(1) { width: 8%; }
+  table.with-tiers th:nth-child(2) { width: 52%; }
+  table.with-tiers th:nth-child(3) { width: 20%; }
+  table.with-tiers th:nth-child(4) { width: 20%; }
+}
+
 .mini-tier-row {
   display: flex;
   flex-wrap: wrap;
