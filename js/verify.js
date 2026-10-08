@@ -13,9 +13,11 @@ function isVerified() {
 // active page and just disappeared, bounce back to Home.
 function updateVerifyTabVisibility() {
   const btn = document.getElementById("verify-tab-btn");
+  const btnDrawer = document.getElementById("verify-tab-drawer-btn");
   if (!btn) return;
   const show = !!currentSession && !isVerified();
   btn.style.display = show ? "" : "none";
+  if (btnDrawer) btnDrawer.style.display = show ? "" : "none";
   if (!show && currentPage === "verify") {
     setPage("home");
   }

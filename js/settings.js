@@ -32,8 +32,11 @@ applyTheme(getStoredTheme());
 
 function updateSettingsTabVisibility() {
   const btn = document.getElementById("settings-tab-btn");
+  const btnDrawer = document.getElementById("settings-tab-drawer-btn");
   if (!btn) return;
-  btn.style.display = !!currentSession ? "" : "none";
+  const show = !!currentSession;
+  btn.style.display = show ? "" : "none";
+  if (btnDrawer) btnDrawer.style.display = show ? "" : "none";
 }
 
 // ---------- render ----------

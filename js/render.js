@@ -443,6 +443,13 @@ function setPage(page, opts) {
   document.querySelectorAll(".page-tab").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.page === page);
   });
+  // sync active state in the hamburger drawer too
+  const drawer = document.getElementById("nav-drawer");
+  if (drawer) {
+    drawer.querySelectorAll(".page-tab").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.page === page);
+    });
+  }
   if (!opts.skipUrlUpdate) updateUrlForPage(page);
 
   const filterNav = document.getElementById("filter-nav");
@@ -903,6 +910,36 @@ function setupSidePanel() {
   };
 }
 
+function setupNavHamburger() {
+  const hamburger = document.getElementById("nav-hamburger");
+  const drawer = document.getElementById("nav-drawer");
+  if (!hamburger || !drawer) return;
+
+  hamburger.onclick = () => {
+    const open = drawer.classList.toggle("open");
+    hamburger.classList.toggle("open", open);
+    hamburger.setAttribute("aria-expanded", open);
+  };
+
+  // close drawer when a tab is picked
+  drawer.querySelectorAll(".page-tab").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      drawer.classList.remove("open");
+      hamburger.classList.remove("open");
+      hamburger.setAttribute("aria-expanded", "false");
+    });
+  });
+
+  // close on outside tap
+  document.addEventListener("click", (e) => {
+    if (!hamburger.contains(e.target) && !drawer.contains(e.target)) {
+      drawer.classList.remove("open");
+      hamburger.classList.remove("open");
+      hamburger.setAttribute("aria-expanded", "false");
+    }
+  });
+}
+
 async function init() {
   await refreshProfile();
   renderAuthUI();
@@ -911,6 +948,7 @@ async function init() {
   await Promise.all([loadPlayers(), loadLiveTests(), loadResultsLog()]);
   buildNav();
   setupSidePanel();
+  setupNavHamburger();
   setPage(!isVerified() && currentSession ? "verify" : pageFromLocation(), { skipUrlUpdate: true });
 }
 
