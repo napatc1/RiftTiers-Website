@@ -221,13 +221,19 @@ function setView(view) {
   render();
 }
 
-function openProfileOverlay(playerName) {
+async function openProfileOverlay(playerName) {
   const overlay = document.getElementById("profile-overlay");
   const content = document.getElementById("profile-overlay-content");
-  content.innerHTML = renderProfileHtml(playerName);
   overlay.classList.add("open");
   overlay.setAttribute("aria-hidden", "false");
   document.body.classList.add("overlay-open");
+  // Show skeleton immediately, then fill in role once tester data loads
+  content.innerHTML = renderProfileHtml(playerName, null);
+  await loadTesterData().catch(() => {});
+  const testerProfile = TESTER_PROFILES.find(
+    (p) => p.username.toLowerCase() === playerName.toLowerCase()
+  );
+  content.innerHTML = renderProfileHtml(playerName, testerProfile || null);
 }
 
 function closeProfileOverlay() {
@@ -367,7 +373,7 @@ function tierColor(tier) {
   return (isHT ? warm : cool)[rank] || "#999";
 }
 
-function renderProfileHtml(playerName) {
+function renderProfileHtml(playerName, testerProfile) {
   const player = PLAYERS.find(
     (p) => p.name.toLowerCase() === playerName.toLowerCase()
   );
@@ -411,6 +417,8 @@ function renderProfileHtml(playerName) {
       }).join("")
     : `<p class="empty-state" style="padding:0;font-size:0.82rem">No recent tests.</p>`;
 
+  const roleBadgeHtml = testerProfile ? `${testerRoleBadge(testerProfile)}` : "";
+
   return `
     <div class="po-head-row">
       <img src="${headUrl(player.name, 80)}" alt="" class="po-head" />
@@ -420,6 +428,7 @@ function renderProfileHtml(playerName) {
           <span class="po-region">${player.region}</span>
           <span class="po-score">${score} overall</span>
         </div>
+        ${roleBadgeHtml ? `<div class="po-role">${roleBadgeHtml}</div>` : ""}
       </div>
     </div>
     <div class="po-section">
