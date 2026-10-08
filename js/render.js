@@ -950,7 +950,11 @@ async function init() {
   buildNav();
   setupSidePanel();
   setupNavHamburger();
-  setPage(!isVerified() && currentSession ? "verify" : pageFromLocation(), { skipUrlUpdate: true });
+  const urlPage = pageFromLocation();
+  // Only auto-redirect to verify when the user landed at root ("/") — not
+  // when they refreshed a specific page like /Testers.
+  const startPage = (!isVerified() && currentSession && urlPage === "home") ? "verify" : urlPage;
+  setPage(startPage, { skipUrlUpdate: true });
   appInitDone = true;
 }
 
