@@ -50,9 +50,11 @@ function renderSupportTab() {
 async function fetchMyTickets() {
   // RLS already limits this to the caller's own tickets, or every ticket
   // if they're a moderator/owner — no extra filtering needed here.
+  // Hightest tickets live in the Tests tab, not here.
   const { data } = await sb
     .from("support_tickets")
     .select("id, category, subject, status, created_at, player_id, players(username)")
+    .neq("category", "hightest")
     .order("created_at", { ascending: false });
   return data || [];
 }
@@ -202,9 +204,10 @@ async function loadAndRenderThreadBody(ticketId) {
   const messagesHtml = (messages || [])
     .map((m) => {
       const name = m.players ? m.players.username : m.author_label || (m.source === "discord" ? "Discord" : "Unknown");
+      const time = new Date(m.created_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
       return `
         <div class="support-message support-message-${m.source}">
-          <div class="support-message-author">${escapeHtml(name)} <span class="support-message-source">${m.source === "discord" ? "via Discord" : ""}</span>${m.edited_at ? ` <span class="support-message-edited">(edited)</span>` : ""}</div>
+          <div class="support-message-author">${escapeHtml(name)} <span class="support-message-source">${m.source === "discord" ? "via Discord" : ""}</span>${m.edited_at ? ` <span class="support-message-edited">(edited)</span>` : ""} <span class="support-message-time">${time}</span></div>
           <div class="support-message-content">${escapeHtml(m.content)}</div>
         </div>
       `;

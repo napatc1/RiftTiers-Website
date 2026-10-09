@@ -6,7 +6,7 @@
 :root {
   --bg: #060810;
   --panel: rgba(255, 255, 255, 0.05);
-  --panel-blur: blur(18px);
+  --panel-blur: blur(8px);
   --line: rgba(255, 255, 255, 0.1);
   --text: #e9eaec;
   --text-dim: #838a94;
@@ -70,7 +70,7 @@
   :root[data-theme="system"] {
     --bg: #060810;
     --panel: rgba(255, 255, 255, 0.05);
-    --panel-blur: blur(18px);
+    --panel-blur: blur(8px);
     --line: rgba(255, 255, 255, 0.1);
     --text: #e9eaec;
     --text-dim: #838a94;
@@ -3301,6 +3301,12 @@ td:last-child {
   color: var(--ice);
 }
 
+.support-message-time {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-left: 6px;
+}
+
 .support-message-content {
   font-size: 0.9rem;
   white-space: pre-wrap;
@@ -3635,5 +3641,40 @@ body.overlay-open {
 
   .profile-overlay-content {
     padding-top: 44px;
+  }
+}
+
+/* ---------- tests-section heading ---------- */
+
+.tests-section-heading {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 12px 0 6px;
+}
+
+/* ---------- performance: reduce motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-card {
+    animation: none;
+  }
+  .home-hero-card::before,
+  .home-hero-card::after {
+    animation: none;
+  }
+  .home-hero-title {
+    animation: none;
+  }
+  .pulse-live,
+  [class*="rowIn"] {
+    animation: none;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

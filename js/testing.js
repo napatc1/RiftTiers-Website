@@ -304,6 +304,24 @@ async function loadAndRenderQueuePanel() {
 let openTestChatId = null;
 let testChatChannel = null;
 
+// Which hightest ticket thread is currently open (by support_ticket id).
+let openHighTestTicketId = null;
+let highTestChannel = null;
+
+async function loadHighTestTickets() {
+  if (!currentProfile) return [];
+  let q = sb
+    .from("support_tickets")
+    .select("id, subject, status, created_at")
+    .eq("category", "hightest")
+    .order("created_at", { ascending: false });
+  if (!currentProfile.isModerator && !currentProfile.isOwner) {
+    q = q.eq("player_id", currentProfile.playerId);
+  }
+  const { data } = await q;
+  return data || [];
+}
+
 async function renderTestsSubtab() {
   const el = document.getElementById("testing-subtab-content");
   if (!el) return;
@@ -312,69 +330,217 @@ async function renderTestsSubtab() {
     el.innerHTML = `<p class="empty-state">Login with Discord to see active tests.</p>`;
     return;
   }
-  if (!currentProfile.isTester) {
-    el.innerHTML = `<p class="empty-state">Only testers can view active tests.</p>`;
-    return;
-  }
 
   el.innerHTML = `<p class="empty-state">Loading...</p>`;
-  const live = await fetchLiveTestsForTester();
 
-  if (live.length === 0) {
-    el.innerHTML = `<p class="empty-state">No active tests right now.</p>`;
-    openTestChatId = null;
+  const [live, htTickets] = await Promise.all([
+    currentProfile.isTester ? fetchLiveTestsForTester() : Promise.resolve([]),
+    loadHighTestTickets(),
+  ]);
+
+  if (openTestChatId && !live.find((t) => t.id === openTestChatId)) openTestChatId = null;
+  if (openHighTestTicketId && !htTickets.find((t) => t.id === openHighTestTicketId)) openHighTestTicketId = null;
+
+  if (!currentProfile.isTester && htTickets.length === 0) {
+    el.innerHTML = `<p class="empty-state">No high tier test requests yet.</p>`;
     return;
   }
-
-  // If the previously-open chat no longer exists in the live list, reset.
-  if (openTestChatId && !live.find((t) => t.id === openTestChatId)) {
-    openTestChatId = null;
+  if (currentProfile.isTester && live.length === 0 && htTickets.length === 0) {
+    el.innerHTML = `<p class="empty-state">No active tests right now.</p>`;
+    return;
   }
 
   el.innerHTML = `<div class="tests-list" id="tests-list-inner"></div>`;
   const list = document.getElementById("tests-list-inner");
 
-  for (const t of live) {
-    const wrap = document.createElement("div");
-    wrap.className = "test-ticket-wrap";
-    wrap.dataset.liveId = t.id;
+  // Live tests section (testers only)
+  if (currentProfile.isTester && live.length > 0) {
+    const heading = document.createElement("div");
+    heading.className = "tests-section-heading";
+    heading.textContent = "Active Tests";
+    list.appendChild(heading);
 
-    const isOpen = openTestChatId === t.id;
-    wrap.innerHTML = `
-      <div class="test-ticket-row${isOpen ? " test-ticket-row-open" : ""}">
-        <img src="${headUrl(t.players.username, 32)}" class="result-row-head" alt="" />
-        <div class="result-row-info">
-          <div class="result-row-name">${escapeHtml(t.players.username)}${t.gamemode.includes("(high)") ? ` <span class="high-test-badge">High Test</span>` : ""}</div>
-          <div class="result-row-gamemode">${escapeHtml(gmLabel(t.gamemode))} &bull; ${escapeHtml(t.region || "")}</div>
+    for (const t of live) {
+      const wrap = document.createElement("div");
+      wrap.className = "test-ticket-wrap";
+      wrap.dataset.liveId = t.id;
+
+      const isOpen = openTestChatId === t.id;
+      wrap.innerHTML = `
+        <div class="test-ticket-row${isOpen ? " test-ticket-row-open" : ""}">
+          <img src="${headUrl(t.players.username, 32)}" class="result-row-head" alt="" />
+          <div class="result-row-info">
+            <div class="result-row-name">${escapeHtml(t.players.username)}${t.gamemode.includes("(high)") ? ` <span class="high-test-badge">High Test</span>` : ""}</div>
+            <div class="result-row-gamemode">${escapeHtml(gmLabel(t.gamemode))} &bull; ${escapeHtml(t.region || "")}</div>
+          </div>
+          <span class="test-ticket-status">In Progress</span>
+          ${t.discord_ticket_channel_id
+            ? `<button type="button" class="open-ticket-btn" data-action="open-chat">Open Ticket</button>`
+            : `<span class="test-ticket-discord test-ticket-pending">Creating channel…</span>`}
         </div>
-        <span class="test-ticket-status">In Progress</span>
-        ${t.discord_ticket_channel_id
-          ? `<button type="button" class="open-ticket-btn" data-action="open-chat">Open Ticket</button>`
-          : `<span class="test-ticket-discord test-ticket-pending">Creating channel…</span>`}
-      </div>
-      ${isOpen ? `<div class="test-chat-panel" id="chat-panel-${t.id}"></div>` : ""}
-    `;
+        ${isOpen ? `<div class="test-chat-panel" id="chat-panel-${t.id}"></div>` : ""}
+      `;
 
-    const openBtn = wrap.querySelector("[data-action='open-chat']");
-    if (openBtn) {
-      openBtn.onclick = () => {
-        if (openTestChatId === t.id) {
-          openTestChatId = null;
+      const openBtn = wrap.querySelector("[data-action='open-chat']");
+      if (openBtn) {
+        openBtn.onclick = () => {
+          openTestChatId = openTestChatId === t.id ? null : t.id;
+          renderTestsSubtab();
+        };
+      }
+
+      list.appendChild(wrap);
+      if (isOpen) renderTestChatPanel(t.id);
+    }
+  }
+
+  // High Test requests section
+  if (htTickets.length > 0) {
+    const heading = document.createElement("div");
+    heading.className = "tests-section-heading";
+    heading.textContent = "High Test Requests";
+    list.appendChild(heading);
+
+    for (const t of htTickets) {
+      const isOpen = openHighTestTicketId === t.id;
+      const date = new Date(t.created_at).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
+      const wrap = document.createElement("div");
+      wrap.className = "test-ticket-wrap";
+
+      wrap.innerHTML = `
+        <div class="test-ticket-row${isOpen ? " test-ticket-row-open" : ""}">
+          <div class="result-row-info">
+            <div class="result-row-name">${escapeHtml(t.subject)}</div>
+            <div class="result-row-gamemode">${date}</div>
+          </div>
+          <span class="support-ticket-status support-ticket-status-${t.status}">${t.status}</span>
+          <button type="button" class="open-ticket-btn">${isOpen ? "Close" : "View Thread"}</button>
+        </div>
+        ${isOpen ? `<div class="test-chat-panel" id="hightest-panel-${t.id}"></div>` : ""}
+      `;
+
+      wrap.querySelector(".open-ticket-btn").onclick = () => {
+        if (openHighTestTicketId === t.id) {
+          openHighTestTicketId = null;
+          if (highTestChannel) { sb.removeChannel(highTestChannel); highTestChannel = null; }
         } else {
-          openTestChatId = t.id;
+          openHighTestTicketId = t.id;
         }
         renderTestsSubtab();
       };
-    }
 
-    list.appendChild(wrap);
+      list.appendChild(wrap);
 
-    if (isOpen) {
-      renderTestChatPanel(t.id);
+      if (isOpen) {
+        const panel = document.getElementById(`hightest-panel-${t.id}`);
+        if (panel) renderHighTestPanel(panel, t.id);
+      }
     }
   }
 
   subscribeTestChatRealtime();
+}
+
+async function renderHighTestPanel(panelEl, ticketId) {
+  panelEl.innerHTML = `<div class="test-chat-messages"><p class="test-chat-empty">Loading…</p></div>`;
+
+  const [{ data: ticket }, { data: messages }] = await Promise.all([
+    sb.from("support_tickets").select("id, subject, status").eq("id", ticketId).single(),
+    sb.from("support_messages")
+      .select("id, author_label, source, content, created_at, edited_at, players(username)")
+      .eq("ticket_id", ticketId)
+      .order("created_at", { ascending: true }),
+  ]);
+
+  if (!ticket) {
+    panelEl.innerHTML = `<p class="test-chat-empty">Ticket not found.</p>`;
+    return;
+  }
+
+  renderHighTestMessages(panelEl, messages || []);
+
+  if (ticket.status === "open") {
+    if (!panelEl.querySelector(".test-chat-input-row")) {
+      const row = document.createElement("div");
+      row.className = "test-chat-input-row";
+      row.innerHTML = `
+        <input type="text" class="test-chat-input" placeholder="Type a reply…" maxlength="800" />
+        <button type="button" class="test-chat-send-btn">Send</button>
+      `;
+      panelEl.appendChild(row);
+
+      const input = row.querySelector(".test-chat-input");
+      const btn = row.querySelector(".test-chat-send-btn");
+      const send = async () => {
+        const text = input.value.trim();
+        if (!text) return;
+        btn.disabled = true;
+        input.disabled = true;
+        try {
+          const { error } = await sb.rpc("send_support_message", { p_ticket_id: ticketId, p_content: text });
+          if (error) throw error;
+          input.value = "";
+        } catch (err) {
+          alert(err.message || "Couldn't send.");
+        }
+        btn.disabled = false;
+        input.disabled = false;
+        input.focus();
+      };
+      btn.onclick = send;
+      input.onkeydown = (e) => { if (e.key === "Enter") send(); };
+    }
+  } else {
+    const closed = document.createElement("p");
+    closed.className = "test-chat-empty";
+    closed.textContent = "This ticket is closed.";
+    panelEl.appendChild(closed);
+  }
+
+  subscribeHighTestRealtime(ticketId, panelEl);
+}
+
+function renderHighTestMessages(panelEl, msgs) {
+  let box = panelEl.querySelector(".test-chat-messages");
+  if (!box) {
+    box = document.createElement("div");
+    box.className = "test-chat-messages";
+    panelEl.insertBefore(box, panelEl.querySelector(".test-chat-input-row"));
+  }
+  if (msgs.length === 0) {
+    box.innerHTML = `<p class="test-chat-empty">No messages yet.</p>`;
+    return;
+  }
+  box.innerHTML = msgs.map((m) => {
+    const name = m.players ? m.players.username : m.author_label || (m.source === "discord" ? "Discord" : "Unknown");
+    const time = new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return `<div class="test-chat-msg">
+      <span class="test-chat-msg-label${m.source === "discord" ? " discord-label" : ""}">${escapeHtml(name)}:</span>
+      ${escapeHtml(m.content)}<span class="test-chat-msg-time">${time}</span>
+    </div>`;
+  }).join("");
+  box.scrollTop = box.scrollHeight;
+}
+
+function subscribeHighTestRealtime(ticketId, panelEl) {
+  if (highTestChannel) { sb.removeChannel(highTestChannel); highTestChannel = null; }
+  highTestChannel = sb
+    .channel(`hightest-ticket-${ticketId}`)
+    .on("postgres_changes",
+      { event: "*", schema: "public", table: "support_messages", filter: `ticket_id=eq.${ticketId}` },
+      async () => {
+        if (openHighTestTicketId !== ticketId) return;
+        const panel = document.getElementById(`hightest-panel-${ticketId}`);
+        if (!panel) return;
+        const { data: msgs } = await sb
+          .from("support_messages")
+          .select("id, author_label, source, content, created_at, edited_at, players(username)")
+          .eq("ticket_id", ticketId)
+          .order("created_at", { ascending: true });
+        renderHighTestMessages(panel, msgs || []);
+      }
+    )
+    .subscribe();
 }
 
 async function renderTestChatPanel(liveTestId) {

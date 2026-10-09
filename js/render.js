@@ -186,9 +186,13 @@ function buildNav() {
   // Search box: filters whatever view is currently showing, doesn't change it
   const searchInput = document.getElementById("search-input");
   searchInput.value = "";
+  let searchDebounceTimer = null;
   searchInput.oninput = () => {
-    searchQuery = searchInput.value.trim().toLowerCase();
-    render();
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => {
+      searchQuery = searchInput.value.trim().toLowerCase();
+      render();
+    }, 150);
   };
 }
 
@@ -1026,27 +1030,29 @@ async function renderTesters() {
           )
           .join("");
 
-  container.innerHTML = `
-    <input type="text" id="testers-search-input" placeholder="Search testers..." value="${escapeHtml(testersSearchQuery)}" class="testers-search" />
-    <table>
-      <thead>
-        <tr><th>#</th><th>Tester</th></tr>
-      </thead>
-      <tbody>
-        ${rowsHtml}
-      </tbody>
-    </table>
-  `;
-
-  const searchInput = document.getElementById("testers-search-input");
-  searchInput.oninput = () => {
-    testersSearchQuery = searchInput.value.trim().toLowerCase();
-    renderTesters();
-  };
-  if (testersSearchQuery) {
-    searchInput.focus();
-    searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+  // Preserve the search input between re-renders to avoid cursor jump
+  let searchInput = document.getElementById("testers-search-input");
+  if (!searchInput) {
+    container.innerHTML = `
+      <input type="text" id="testers-search-input" placeholder="Search testers..." class="testers-search" />
+      <table>
+        <thead><tr><th>#</th><th>Tester</th></tr></thead>
+        <tbody id="testers-tbody"></tbody>
+      </table>
+    `;
+    searchInput = document.getElementById("testers-search-input");
+    let testersDebounceTimer = null;
+    searchInput.oninput = () => {
+      clearTimeout(testersDebounceTimer);
+      testersDebounceTimer = setTimeout(() => {
+        testersSearchQuery = searchInput.value.trim().toLowerCase();
+        renderTesters();
+      }, 150);
+    };
   }
+
+  const tbody = document.getElementById("testers-tbody");
+  if (tbody) tbody.innerHTML = rowsHtml;
 }
 
 function setupSidePanel() {
